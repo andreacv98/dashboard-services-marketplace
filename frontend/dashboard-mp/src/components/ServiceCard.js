@@ -3,13 +3,17 @@ import { Button } from "react-bootstrap";
 
 function ServiceCard (props) {
 
-    const serviceTitle = props.serviceTitle;
-    const serviceDescription = props.serviceDescription;
-    const serviceTags = props.serviceTags;
+    const id = props.id
+    const serviceTitle = props.title;
+    const serviceDescription = props.description;
+    const serviceTags = props.tags;
+    const serviceProviderID = props.serviceProviderID;
+
+    const buyUrl = "/buyservice/"+serviceProviderID+"/"+id;
 
     return (
         <>
-            <Card style={{ width: '18rem' }}>
+            <Card style={{ width: '18rem' }} className="m-3">
                 <Card.Body>
                     <Card.Title>
                         {serviceTitle}
@@ -20,7 +24,7 @@ function ServiceCard (props) {
                     <Card.Text>
                         Tags: {serviceTags}
                     </Card.Text>
-                    <Button variant="primary">Buy</Button>
+                    <Button variant="primary" href={buyUrl}>Buy</Button>
                 </Card.Body>
             </Card>
         </>

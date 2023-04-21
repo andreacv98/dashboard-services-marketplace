@@ -9,7 +9,7 @@ import Button from 'react-bootstrap/Button';
 function TopBar (props) {
   const auth = useAuth();
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar bg="dark" variant="dark" expand="lg">
         <Container className="hl-100">
           <Navbar.Brand href="/">Services Marketplace</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -21,7 +21,7 @@ function TopBar (props) {
                 <NavDropdown title={<PersonCircle size={24} />} id="basic-nav-dropdown">
                   <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
                   <NavDropdown.Divider />
-                  <NavDropdown.Item onClick={() => void auth.removeUser()}>Logout</NavDropdown.Item>
+                  <NavDropdown.Item onClick={() => void auth.signoutSilent()}>Logout</NavDropdown.Item>
                 </NavDropdown>
               ) : (
                 <Button onClick={() => void auth.signinRedirect()}>Login</Button>

@@ -5,7 +5,7 @@ import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from "react-oidc-context";
-import keycloak from "./oidc/keycloakConfig";
+import keycloak from "./configs/keycloakConfig";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

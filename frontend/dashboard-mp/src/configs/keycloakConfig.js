@@ -2,7 +2,7 @@ const keycloak = {
  authority: "https://auth.cvfnet.org/realms/service-broker",
  realm: "service-broker",
  client_id: "dashboard",
- redirect_uri: window.location.origin + '/',
+ redirect_uri: window.location.origin + window.location.pathname,
  scope: "openid profile email",
  //automaticSilentRenew: false,
  onSigninCallback: () => {
