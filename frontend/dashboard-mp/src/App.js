@@ -1,12 +1,14 @@
 import TopBar from "./components/TopBar";
-import { BrowserRouter, Routes, Route, } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, } from "react-router-dom";
 import Home from "./components/HomePage";
 import Profile from "./components/ProfilePage";
 import ErrorBar from "./components/ErrorBar";
+import BuyPage from "./components/BuyPage";
 import ServiceProviderRegistration from "./components/ServiceProviderRegistration";
 import LoadingOverlay from 'react-loading-overlay-ts';
 import {  useState } from "react";
 import CatalogPage from "./components/CatalogPage";
+import { propTypes } from "react-bootstrap/esm/Image";
 
 function App() {
 
@@ -29,6 +31,7 @@ function App() {
             <Route path="profile" element= {<Profile isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/service-providers/register" element={<ServiceProviderRegistration isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/catalog" element={<CatalogPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
+            <Route path="/buyservice/:idServiceProvider/:idService" element={<BuyPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
           </Routes>
         </BrowserRouter>
         <ErrorBar />
