@@ -2,8 +2,9 @@ import { Form, Button, Alert, Container, Row, Col } from 'react-bootstrap';
 import { getServices } from '../configs/marketplaceConfig';
 import { useAuth } from 'react-oidc-context';
 import { useEffect, useState } from 'react';
+import { subscribeService } from '../configs/marketplaceConfig';
 
-function BuyServiceForm(props) {
+function SubscribeServiceForm(props) {
     const auth = useAuth();
     const isLoading = props.isLoading;
     const setIsLoading = props.setIsLoading;
@@ -13,7 +14,10 @@ function BuyServiceForm(props) {
     const [error, setError] = useState("");
     const [service, setService] = useState(null);
 
+    const [planId, setPlanId] = useState("");
     const [planDescription, setPlanDescription] = useState("");
+
+    const [created, setCreated] = useState(false);
 
     useEffect(() => {
         // Get service from marketplace
@@ -40,12 +44,37 @@ function BuyServiceForm(props) {
         if (selectedPlanId === "") {
             setPlanDescription("");
         } else {
+            setPlanId(selectedPlanId);
             const selectedPlan = service.plans.find(plan => plan.id === selectedPlanId);
             setPlanDescription(selectedPlan.description);
         }        
     }
 
-    if( service !== null) {
+    const handleSubscription = (event) => {
+        event.preventDefault();
+        if (planId === "") {
+            setError("Please select a plan");
+            return;
+        }
+        setIsLoading(true);
+        console.log("Subscribing service: ", idService, " with plan: ", planId);
+        subscribeService(idServiceProvider, idService, planId, auth.user.access_token).then((response) => {
+            if (response.status === 200) {
+                response.json().then((data) => {
+                    console.log(data);
+                    console.log("Service subscribed");
+                    setCreated(true);
+                    setIsLoading(false);
+                })
+            } else {
+                console.log("Error subscribing service");
+                setError("Error subscribing service");
+                setIsLoading(false);
+            }
+        })
+    }
+
+    if( service !== null && !created) {
         return (
             <Container className="d-flex justify-content-center align-items-center mt-3">
                 <div className="w-50">
@@ -78,8 +107,8 @@ function BuyServiceForm(props) {
                             </Col>
                         </Row>
                     </Form.Group>
-                    <Button variant="primary" type="submit">
-                        Buy
+                    <Button variant="primary" type="submit" onClick={handleSubscription}>
+                        Subscribe
                     </Button>
                 </Form>         
                 <Alert variant="danger" show={error !== ""} onClose={() => setError("")} dismissible>
@@ -91,14 +120,23 @@ function BuyServiceForm(props) {
         )
     } else {
         return (
-            <Alert variant="danger" show={error !== ""} onClose={() => setError("")} dismissible>
-                <Alert.Heading>Error</Alert.Heading>
-                <p>{error}</p>
-            </Alert>
+            <Container className="d-flex justify-content-center align-items-center mt-3">
+                <Alert variant="danger" show={error !== ""} onClose={() => setError("")} dismissible>
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{error}</p>
+                </Alert>
+                <Alert variant="success" show={created}>
+                    <Alert.Heading>Successfully subscribed to the service</Alert.Heading>
+                    <p>Service: {service?.name}</p>
+                    <p>Plan: {service?.plans.find(plan => plan.id === planId)?.name}</p>
+                    <Button href="/subscriptions">Subscriptions list</Button>
+                </Alert>
+            </Container>
+            
         )
     }
 
     
 }
 
-export default BuyServiceForm;
+export default SubscribeServiceForm;

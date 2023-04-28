@@ -3,12 +3,13 @@ import { BrowserRouter, Routes, Route, useParams, } from "react-router-dom";
 import Home from "./components/HomePage";
 import Profile from "./components/ProfilePage";
 import ErrorBar from "./components/ErrorBar";
-import BuyPage from "./components/BuyPage";
+import SubscribePage from "./components/SubscribePage";
 import ServiceProviderRegistration from "./components/ServiceProviderRegistration";
 import LoadingOverlay from 'react-loading-overlay-ts';
-import {  useState } from "react";
+import { useState } from "react";
 import CatalogPage from "./components/CatalogPage";
-import { propTypes } from "react-bootstrap/esm/Image";
+import SubscribedServicesPage from "./components/SubscribedServicesPage";
+import DeployPage from "./components/DeployPage";
 
 function App() {
 
@@ -31,7 +32,9 @@ function App() {
             <Route path="profile" element= {<Profile isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/service-providers/register" element={<ServiceProviderRegistration isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/catalog" element={<CatalogPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
-            <Route path="/buyservice/:idServiceProvider/:idService" element={<BuyPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+            <Route path="/buyservice/:idServiceProvider/:idService" element={<SubscribePage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+            <Route path="/subscriptions" element={<SubscribedServicesPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+            <Route path="/deployments/:idDeployment" element={<DeployPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
           </Routes>
         </BrowserRouter>
         <ErrorBar />

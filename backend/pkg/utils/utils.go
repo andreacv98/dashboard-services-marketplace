@@ -105,6 +105,34 @@ func setupDb() {
 		Logger.Panic("Error creating service_providers table: ", err)
 	}
 	Logger.Info("Table service_providers created")
+
+	// Create service subscriptions table
+	_, err = DbConfig.Db.Exec("CREATE TABLE IF NOT EXISTS service_subscriptions (id SERIAL PRIMARY KEY, serviceproviderid INTEGER NOT NULL, serviceid TEXT NOT NULL, planid TEXT NOT NULL, userid TEXT NOT NULL, remotesubscriptionid TEXT, created_at TIMESTAMP NOT NULL DEFAULT NOW(), updated_at TIMESTAMP NOT NULL DEFAULT NOW())")
+	if err != nil {
+		Logger.Panic("Error creating service_subscriptions table: ", err)
+	}
+	Logger.Info("Table service_subscriptions created")
+
+	// Create service instance requests table
+	_, err = DbConfig.Db.Exec("CREATE TABLE IF NOT EXISTS service_instance_requests (id SERIAL PRIMARY KEY, service_instance_id TEXT NOT NULL, operation_id TEXT)")
+	if err != nil {
+		Logger.Panic("Error creating service_instance_requests table: ", err)
+	}
+	Logger.Info("Table service_instance_requests created")
+	
+	// Create service binding requests table
+	_, err = DbConfig.Db.Exec("CREATE TABLE IF NOT EXISTS service_binding_requests (id SERIAL PRIMARY KEY, service_binding_id TEXT NOT NULL, operation_id TEXT)")
+	if err != nil {
+		Logger.Panic("Error creating service_binding_requests table: ", err)
+	}
+	Logger.Info("Table service_binding_requests created")
+
+	// Create deployments table
+	_, err = DbConfig.Db.Exec("CREATE TABLE IF NOT EXISTS deployments (id SERIAL PRIMARY KEY, user_id TEXT NOT NULL, service_id TEXT NOT NULL, plan_id TEXT NOT NULL, service_provider_id INT NOT NULL, peering_id TEXT, service_instance_request_id INTEGER, service_binding_request_id INTEGER, created_at TIMESTAMP NOT NULL DEFAULT NOW(), updated_at TIMESTAMP NOT NULL DEFAULT NOW(), FOREIGN KEY (service_instance_request_id) REFERENCES service_instance_requests (id) ON DELETE CASCADE, FOREIGN KEY (service_binding_request_id) REFERENCES service_binding_requests (id) ON DELETE CASCADE, FOREIGN KEY (service_provider_id) REFERENCES service_providers (id) ON DELETE CASCADE)")
+	if err != nil {
+		Logger.Panic("Error creating deployments table: ", err)
+	}
+	Logger.Info("Table deployments created")
 }
 
 func SetupKeycloak() {

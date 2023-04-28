@@ -20,6 +20,9 @@ function CatalogPage(props) {
                 if (response.status === 200) {
                     let svcs = [];
                     response.json().then((data) => {
+                        if (data.service_providers === undefined) {
+                            data.service_providers = [];
+                        }
                         let svcProviders = data.service_providers;
                         const promises = svcProviders.map(async (serviceProvider) => {
                             response = await getServices(serviceProvider.id);

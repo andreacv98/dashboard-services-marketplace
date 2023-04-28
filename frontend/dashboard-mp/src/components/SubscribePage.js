@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
-import BuyServiceForm from './BuyServiceForm';
+import SubscribeServiceForm from './SubscribeServiceForm';
 
-function BuyPage(props) {
+function SubscribePage(props) {
     const { idServiceProvider, idService } = useParams();
     const auth = useAuth();
     const [shouldRedirect, setShouldRedirect] = useState(false);
@@ -33,7 +33,7 @@ function BuyPage(props) {
         if (auth.isAuthenticated) {
             return (
                 <>
-                    <BuyServiceForm idServiceProvider={idServiceProvider} idService={idService} isLoading={isLoading} setIsLoading={setIsLoading}/>
+                    <SubscribeServiceForm idServiceProvider={idServiceProvider} idService={idService} isLoading={isLoading} setIsLoading={setIsLoading}/>
                 </>
             )
         } else {
@@ -42,4 +42,4 @@ function BuyPage(props) {
     }
 }
 
-export default BuyPage;
+export default SubscribePage;
