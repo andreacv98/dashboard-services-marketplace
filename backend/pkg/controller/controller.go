@@ -587,41 +587,41 @@ func GetDeploymentsHandler(c *gin.Context) {
 		// Check validity of nullable fields to be joined to other tables
 		if serviceInstanceRequestId.Valid && serviceBindingRequestId.Valid {
 			// Join with service_instances and service_bindings and get service instance, service binding ids and their operations
-			query = "SELECT service_instance_requests.service_instance_id, service_instance_requests.operation_id, service_binding_requests.service_binding_id, service_binding_requests.operation_id FROM service_instance_requests FROM deployments, service_instance_requests, service_binding_requests WHERE deployments.id = $1 AND deployments.service_instance_request_id = service_instance_requests.id AND deployments.service_binding_request_id = service_binding_requests.id"
+			query = "SELECT service_instance_requests.service_instance_id, service_instance_requests.operation_id, service_binding_requests.service_binding_id, service_binding_requests.operation_id FROM deployments, service_instance_requests, service_binding_requests WHERE deployments.id = $1 AND deployments.service_instance_request_id = service_instance_requests.id AND deployments.service_binding_request_id = service_binding_requests.id"
 			// Execute query single row
-			var serviceInstanceId int
-			var serviceInstanceOperationId sql.NullInt32
-			var serviceBindingId int
-			var serviceBindingOperationId sql.NullInt32
+			var serviceInstanceId string
+			var serviceInstanceOperationId sql.NullString
+			var serviceBindingId string
+			var serviceBindingOperationId sql.NullString
 			err = utils.DbConfig.Db.QueryRow(query, deploymentId).Scan(&serviceInstanceId, &serviceInstanceOperationId, &serviceBindingId, &serviceBindingOperationId)
 			if err != nil {
 				utils.Logger.Error("Error while executing query", err)
 				c.JSON(500, gin.H{"error": err.Error()})
 				return
 			}
-			deployment.ServiceInstanceId = strconv.Itoa(serviceInstanceId)
+			deployment.ServiceInstanceId = serviceInstanceId
 			if serviceInstanceOperationId.Valid {
-				deployment.ServiceInstanceOperation = strconv.Itoa(int(serviceInstanceOperationId.Int32))
+				deployment.ServiceInstanceOperation = serviceInstanceOperationId.String
 			}
-			deployment.ServiceBindingId = strconv.Itoa(serviceBindingId)
+			deployment.ServiceBindingId = serviceBindingId
 			if serviceBindingOperationId.Valid {
-				deployment.ServiceBindingOperation = strconv.Itoa(int(serviceBindingOperationId.Int32))
+				deployment.ServiceBindingOperation = serviceBindingOperationId.String
 			}
 		} else if serviceInstanceRequestId.Valid {
 			// Join with service_instances and get service instance id and its operation
-			query = "SELECT service_instance_requests.service_instance_id, service_instance_requests.operation_id, FROM service_instance_requests FROM deployments, service_instance_requests WHERE deployments.id = $1 AND deployments.service_instance_request_id = service_instance_requests.id"
+			query = "SELECT service_instance_requests.service_instance_id, service_instance_requests.operation_id FROM deployments, service_instance_requests WHERE deployments.id = $1 AND deployments.service_instance_request_id = service_instance_requests.id"
 			// Execute query single row
-			var serviceInstanceId int
-			var serviceInstanceOperationId sql.NullInt32
+			var serviceInstanceId string
+			var serviceInstanceOperationId sql.NullString
 			err = utils.DbConfig.Db.QueryRow(query, deploymentId).Scan(&serviceInstanceId, &serviceInstanceOperationId)
 			if err != nil {
 				utils.Logger.Error("Error while executing query", err)
 				c.JSON(500, gin.H{"error": err.Error()})
 				return
 			}
-			deployment.ServiceInstanceId = strconv.Itoa(serviceInstanceId)
+			deployment.ServiceInstanceId = serviceInstanceId
 			if serviceInstanceOperationId.Valid {
-				deployment.ServiceInstanceOperation = strconv.Itoa(int(serviceInstanceOperationId.Int32))
+				deployment.ServiceInstanceOperation = serviceInstanceOperationId.String
 			}
 		}
 
@@ -708,7 +708,7 @@ func GetDeploymentHandler(c *gin.Context) {
 	// Check validity of nullable fields to be joined to other tables
 	if serviceInstanceRequestId.Valid && serviceBindingRequestId.Valid {
 		// Join with service_instances and service_bindings and get service instance, service binding ids and their operations
-		query = "SELECT service_instance_requests.service_instance_id, service_instance_requests.operation_id, service_binding_requests.service_binding_id, service_binding_requests.operation_id FROM service_instance_requests FROM deployments, service_instance_requests, service_binding_requests WHERE deployments.id = $1 AND deployments.service_instance_request_id = service_instance_requests.id AND deployments.service_binding_request_id = service_binding_requests.id"
+		query = "SELECT service_instance_requests.service_instance_id, service_instance_requests.operation_id, service_binding_requests.service_binding_id, service_binding_requests.operation_id FROM deployments, service_instance_requests, service_binding_requests WHERE deployments.id = $1 AND deployments.service_instance_request_id = service_instance_requests.id AND deployments.service_binding_request_id = service_binding_requests.id"
 		// Execute query single row
 		var serviceInstanceId string
 		var serviceInstanceOperationId sql.NullString
@@ -1112,6 +1112,8 @@ func AddServiceInstanceHandler(c *gin.Context) {
 			UserID: userID,
 		}
 		
+		// Wait for 1 second
+		time.Sleep(1 * time.Second)
 		// Create request
 		req, err := http.NewRequest("PUT", url+"/v2/service_instances/"+serviceInstanceID+"?accepts_incomplete=true", nil)
 		if err != nil {
@@ -1244,6 +1246,8 @@ func GetServiceInstancesHandler(c *gin.Context) {
 		// Operation in progress
 		// Get last operation
 		// Make request with query params
+		// Wait for 1 second
+		time.Sleep(1 * time.Second)
 		req, err := http.NewRequest("GET", url+"/v2/service_instances/"+serviceInstanceID+"/last_operation?operation="+operationID.String, nil)
 		if err != nil {
 			utils.Logger.Error("Error while creating request", err)
@@ -1289,6 +1293,8 @@ func GetServiceInstancesHandler(c *gin.Context) {
 	} else {
 		// Service instance concluded return service instance
 		// Make request with query params
+		// Wait for 1 second
+		time.Sleep(1 * time.Second)
 		req, err := http.NewRequest("GET", url+"/v2/service_instances/"+serviceInstanceID+"?service_id="+serviceId+"&plan_id="+planId, nil)
 		if err != nil {
 			utils.Logger.Error("Error while creating request", err)
@@ -1490,6 +1496,8 @@ func AddServiceBindingsHandler(c *gin.Context) {
 			return
 		}
 		
+		// Wait for 1 second
+		time.Sleep(1 * time.Second)
 		// Create request
 		req, err := http.NewRequest("PUT", url+"/v2/service_instances/"+serviceInstanceID.String+"/service_bindings/"+serviceBindingID+"?accepts_incomplete=true", nil)
 		if err != nil {

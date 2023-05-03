@@ -10,6 +10,7 @@ import { useState } from "react";
 import CatalogPage from "./components/CatalogPage";
 import SubscribedServicesPage from "./components/SubscribedServicesPage";
 import DeployPage from "./components/DeployPage";
+import DeploymentsPage from "./components/DeploymentsPage";
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="/buyservice/:idServiceProvider/:idService" element={<SubscribePage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/subscriptions" element={<SubscribedServicesPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/deployments/:idDeployment" element={<DeployPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
+            <Route path="/deployments/" element={<DeploymentsPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
           </Routes>
         </BrowserRouter>
         <ErrorBar />

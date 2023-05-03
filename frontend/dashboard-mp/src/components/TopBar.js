@@ -15,6 +15,16 @@ function TopBar (props) {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-nav-dropdown">
             <Nav className="me-auto">
+              {
+                auth.isAuthenticated ? (
+                  <>
+                    <Nav.Link href="/subscriptions">My subscriptions</Nav.Link>
+                    <Nav.Link href="/deployments">My deployment</Nav.Link>
+                  </>
+                ) : (
+                  <></>
+                )
+              }
             </Nav>
             <Nav className="ml-auto">
               { auth.isAuthenticated ? (
