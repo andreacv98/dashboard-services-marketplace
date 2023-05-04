@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import ServiceCard from "./ServiceCard";
 import { getServiceProviders } from "../configs/marketplaceConfig";
 import { getServices } from "../configs/marketplaceConfig";
-import { Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 
 function CatalogPage(props) {
     const auth = useAuth();
@@ -73,14 +73,23 @@ function CatalogPage(props) {
         //if (auth.isAuthenticated) {
             return (
                 <>
-                <Container>
-                    {
-                        serviceProvidersServices.map((serviceProviderServices) => (
-                            serviceProviderServices.services.map((service) => (
-                                <ServiceCard service={service} key={service.id} id={service.id} title={service.name} description={service.description} tags={service.tags} serviceProviderID={serviceProviderServices.idServiceProvider}/>
-                            ))
-                        ))
-                    }
+                <Container className="m-2">
+                    <Row className="text-center">
+                        <Col>
+                            <h1>Catalog</h1>
+                        </Col>                        
+                    </Row>
+                    <Row>
+                        <Col>
+                            {
+                                serviceProvidersServices.map((serviceProviderServices) => (
+                                    serviceProviderServices.services.map((service) => (
+                                        <ServiceCard service={service} key={service.id} id={service.id} title={service.name} description={service.description} tags={service.tags} serviceProviderID={serviceProviderServices.idServiceProvider}/>
+                                    ))
+                                ))
+                            }
+                        </Col>
+                    </Row>                    
                 </Container>
                 </>                
             )

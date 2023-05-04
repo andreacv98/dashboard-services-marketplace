@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Container, Form as BootstrapForm, Button, Alert } from "react-bootstrap";
-import { bindService, getServices } from "../configs/marketplaceConfig";
+import { Container, Form as BootstrapForm, Button, Alert, Row, Col } from "react-bootstrap";
 import Form from '@rjsf/bootstrap-4';
 import validator from '@rjsf/validator-ajv8';
 import { useAuth } from "react-oidc-context";
-import { peerDeployment, checkPeering, instanceService, checkInstance } from "../configs/marketplaceConfig";
+import { peerDeployment, checkPeering, instanceService, checkInstance, checkBinding, bindService, getServices } from "../configs/marketplaceConfig";
 
 function DeployForm(props) {
 
@@ -151,7 +150,7 @@ function DeployForm(props) {
                     idDeployment,
                     auth.user?.access_token
                 ).then((response) => {
-                    console.log("Peering status: " + response.status)
+                    console.log("Instance status: " + response.status)
                     switch (response.status) {                                            
                         case 200:
                             // Peering is done
@@ -165,7 +164,7 @@ function DeployForm(props) {
                                 clearInterval(interval)
                             })
                             break;
-                        case 102:
+                        case 202:
                             // Peering is in progress
                             console.log("Peering is in progress")
                             break;
@@ -185,7 +184,7 @@ function DeployForm(props) {
                     setPeeringStarted(false)
                     clearInterval(interval)
                 })
-            }, 5000);
+            }, 1500);
         }
     }, [peeringCheckPhase])
 
@@ -197,22 +196,58 @@ function DeployForm(props) {
                     idDeployment,
                     auth.user?.access_token
                 ).then((response) => {
-                    console.log("Peering status: " + response.status)
+                    console.log("Service instance creation status: " + response.status)
                     switch (response.status) {                                            
                         case 200:
                             // Peering is done
-                            setInstanceCheckPhase(false)
-                            setInstanceStatus(true)
-                            clearInterval(interval)
-                            break;
-                        case 102:
-                            // Peering is in progress
-                            console.log("Peering is in progress")
+                            // Check state field in the JSON response
+                            response.json().then((data) => {
+                                let state = data.state;
+                                if (state !== undefined) {
+                                    switch (state) {
+                                        case "succeeded":
+                                            // Service instance created successfully
+                                            setInstanceCheckPhase(false)
+                                            setInstanceStatus(true)
+                                            clearInterval(interval)
+                                            break;
+                                        case "failed":
+                                            // Service instance creation failed
+                                            setError("Error while creating the service instance")
+                                            setInstanceCheckPhase(false)
+                                            setInstanceStatus(false)
+                                            clearInterval(interval)
+                                            break;
+                                        case "in progress":
+                                            // Service instance creation is in progress
+                                            console.log("Service instance creation is in progress")
+                                            break;
+                                        default:
+                                            // Unknown state
+                                            setError("Unknown state")
+                                            setInstanceCheckPhase(false)
+                                            setInstanceStatus(false)
+                                            clearInterval(interval)
+                                            break;
+                                    }
+                                } else {
+                                    // No operation in progress, the service instance has been already created
+                                    setInstanceCheckPhase(false)
+                                    setInstanceStatus(true)
+                                    clearInterval(interval)
+                                }
+                                
+                            }).catch((error) => {
+                                setError(error.message)
+                                setInstanceCheckPhase(false)
+                                setInstanceStatus(false)
+                                clearInterval(interval)
+                            })
                             break;
                         default:
-                            // Peering has failed
-                            console.log("Peering has failed")
-                            setError("Error while peering the deployment")
+                            // Instance has failed
+                            console.log("Service instance creation has failed with code: " + response.status)
+                            setError("Error while creating service instance for the deployment")
                             setInstanceCheckPhase(false)
                             setInstanceStatus(true)
                             clearInterval(interval)
@@ -225,9 +260,85 @@ function DeployForm(props) {
                     setInstanceStatus(true)
                     clearInterval(interval)
                 })
-            }, 5000);
+            }, 1500);
         }
     }, [instanceCheckPhase])
+
+    useEffect(() => {
+        if (bindingCheckPhase) {
+            let interval = setInterval(() => {
+                // Check peering status
+                checkBinding(
+                    idDeployment,
+                    auth.user?.access_token
+                ).then((response) => {
+                    console.log("Service binding creation status: " + response.status)
+                    switch (response.status) {                                            
+                        case 200:
+                            // Peering is done
+                            // Check state field in the JSON response
+                            response.json().then((data) => {
+                                let state = data.state;
+                                if (state !== undefined) {
+                                    switch (state) {
+                                        case "succeeded":
+                                            // Service instance created successfully
+                                            setBindingCheckPhase(false)
+                                            setBindingStatus(true)
+                                            clearInterval(interval)
+                                            break;
+                                        case "failed":
+                                            // Service instance creation failed
+                                            setError("Error while creating the service binding")
+                                            setBindingCheckPhase(false)
+                                            setBindingStatus(false)
+                                            clearInterval(interval)
+                                            break;
+                                        case "in progress":
+                                            // Service instance creation is in progress
+                                            console.log("Service binding creation is in progress")
+                                            break;
+                                        default:
+                                            // Unknown state
+                                            setError("Unknown state")
+                                            setBindingCheckPhase(false)
+                                            setBindingStatus(false)
+                                            clearInterval(interval)
+                                            break;
+                                    }
+                                } else {
+                                    // No operation in progress, the service instance has been already created
+                                    setBindingCheckPhase(false)
+                                    setBindingStatus(true)
+                                    clearInterval(interval)
+                                }
+                                
+                            }).catch((error) => {
+                                setError(error.message)
+                                setBindingCheckPhase(false)
+                                setBindingStatus(false)
+                                clearInterval(interval)
+                            })
+                            break;
+                        default:
+                            // Binding has failed
+                            console.log("Service binding creation has failed with code: " + response.status)
+                            setError("Error while creating service binding for the deployment")
+                            setBindingCheckPhase(false)
+                            setBindingStatus(true)
+                            clearInterval(interval)
+                            break;
+                    }
+
+                }).catch((error) => {
+                    setError(error.message)
+                    setBindingCheckPhase(false)
+                    setBindingStatus(true)
+                    clearInterval(interval)
+                })
+            }, 1500);
+        }
+    }, [bindingCheckPhase])
 
     const handlePeering = (e) => {
         e.preventDefault();
@@ -249,18 +360,20 @@ function DeployForm(props) {
                 clusterauthtoken,
                 prefixNamespace
             ).then((response) => {
-                if (response.status === 202) {
+                if (response.status === 202 || response.status === 200) {
                     // Peering has been started
                     setPeeringCheckPhase(true)
                 } else {
                     setError("Error while peering the deployment")
+                    console.log("Error while peering the deployment: "+ response.status)
                     setPeeringStarted(false)
                 }
             }
-
+            ).catch((error) => {
+                setError(error.message)
+                setPeeringStarted(false)
+            }
             )
-
-            //setStep(2)
         }
     }
 
@@ -287,6 +400,10 @@ function DeployForm(props) {
                     if (response.status === 202) {
                         // Service instance has been started
                         setInstanceCheckPhase(true)
+                    } else if (response.status === 201) {
+                        // Service instance has been already created
+                        setInstanceStarted(false)
+                        setInstanceStatus(true)
                     } else {
                         setError("Error while creating the service instance")
                         setInstanceStarted(false)
@@ -319,16 +436,19 @@ function DeployForm(props) {
                     bindingData,
                     serviceBindingId
                 ).then((response) => {
-                    if (response.status === 201) {
-                        // Service instance has been started
+                    if (response.status === 202) {
+                        // Service binding has been started
+                        setBindingCheckPhase(true)
+                    } else if (response.status === 201) {
+                        // Service Binding has been started
                         setBindingStatus(true)
                     } else {
-                        setError("Error while creating the service instance")
-                        setInstanceStarted(false)
+                        setError("Error while creating the service binding")
+                        setBindingStarted(false)
                     }
                 }).catch((error) => {
                     setError(error.message)
-                    setInstanceStarted(false)
+                    setBindingStarted(false)
                 })
             }
         }
@@ -386,7 +506,15 @@ function DeployForm(props) {
                             <BootstrapForm.Check type="checkbox" label={bindable ? "The service will automatically be binded to the application" : ""} checked={bindable} disabled readOnly/>
                         </BootstrapForm.Group>
                     </BootstrapForm>
-                    <Button variant="primary" onClick={() => setStep(1)}>Next</Button>
+                <hr/>
+                <h4>Requirements</h4>
+                <p>In order to get a working service as expected, you need the following:</p>
+                <ul>
+                    <li>A remotely accesible Kubernetes cluster</li>
+                    <li>Liqo installed on the cluster (see in the following section)</li>
+                    <li>Synator Operator deployed in the cluster. <a href="https://raw.githubusercontent.com/TheYkk/synator/master/deploy.yml" target="_blank">YAML file to deploy</a> | <a href="https://github.com/TheYkk/synator" target="_blank">by Synator</a></li>
+                </ul>
+                <Button variant="primary" onClick={() => setStep(1)}>Next</Button>
                 </>
             )
         case 1:
@@ -441,6 +569,14 @@ function DeployForm(props) {
             console.log("Parameters schema: "+JSON.stringify(parameters))
             return (
                 <>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <h4>Service instance creation</h4>
+                                <p>You will create the main components of the service you are implementing. This may take some time and may require some information to create the service instance. Please check below. Please note: the service may not be immediately operational if it also needs binding information.</p>
+                            </Col>
+                        </Row>
+                    </Container>
                     <BootstrapForm>
                         <BootstrapForm.Group controlId="formServiceInstanceId" className="m-3">
                             <BootstrapForm.Label>Service Instance ID</BootstrapForm.Label>
@@ -448,7 +584,7 @@ function DeployForm(props) {
                         </BootstrapForm.Group>
                     </BootstrapForm>
                     <hr />
-                    <h8>Parameters:</h8>
+                    <h6>Parameters:</h6>
                     <Form
                         schema={parameters}
                         validator={validator}
@@ -468,6 +604,14 @@ function DeployForm(props) {
         case 3:
             return (
                 <>
+                <Container>
+                    <Row>
+                        <Col>
+                            <h4>Service isntance creation</h4>
+                            <p>You will create the main components of the service you are implementing. This may take some time and may require some information to create the service instance. Please check below. Please note: the service may not be immediately operational if it also needs binding information.</p>
+                        </Col>
+                    </Row>
+                </Container>
                 <BootstrapForm>
                         <BootstrapForm.Group controlId="formServiceInstanceId" className="m-3">
                             <BootstrapForm.Label>Service Binding ID</BootstrapForm.Label>
@@ -475,7 +619,7 @@ function DeployForm(props) {
                         </BootstrapForm.Group>
                     </BootstrapForm>
                     <hr />
-                    <h8>Parameters:</h8>
+                    <h6>Parameters:</h6>
                 <Form
                     schema={parametersBinding}
                     validator={validator}

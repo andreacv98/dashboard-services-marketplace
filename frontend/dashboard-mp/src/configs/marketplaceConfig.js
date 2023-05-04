@@ -171,4 +171,15 @@ export async function checkInstance(deploymentId, userToken) {
     return response
 }
 
+export async function checkBinding(deploymentId, userToken) {
+    const response = await fetch(`${marketplace.URL}/deployments/${deploymentId}/service-bindings`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${userToken}`,
+        },
+    });
+    return response
+}
+
 export default marketplace;

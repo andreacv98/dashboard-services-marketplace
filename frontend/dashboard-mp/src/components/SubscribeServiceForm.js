@@ -21,21 +21,29 @@ function SubscribeServiceForm(props) {
 
     useEffect(() => {
         // Get service from marketplace
+        setIsLoading(true);
         getServices(idServiceProvider).then((response) => {
             if (response.status === 200) {
                 response.json().then((data) => {
                     let services = data.services;
                     let serviceFound = services.find(service => service.id === idService);
                     setService(serviceFound);
+                    setIsLoading(false);
+                }).catch((error) => {
+                    console.log("Error getting service from marketplace: "+error);
+                    setError("Error getting service from marketplace");
+                    setIsLoading(false);
                 })
             } else {
-                console.log("Error getting service providers from marketplace");
-                setError("Error getting services from marketplace");
+                console.log("Error getting service from marketplace: "+error);
+                setError("Error getting service from marketplace");
+                setIsLoading(false);
             }
         })
         .catch((error) => {
-            console.log("Error getting service providers from marketplace");
-            setError("Error getting services from marketplace");
+            console.log("Error getting service from marketplace: "+error);
+            setError("Error getting service from marketplace");
+            setIsLoading(false);
         })
     }, [])
 
@@ -82,11 +90,11 @@ function SubscribeServiceForm(props) {
                 <Form>
                     <Form.Group className="mb-3" controlId="formService">
                         <Form.Label>Service name</Form.Label>
-                        <Form.Control type="text" placeholder="Service name" value={service?.name} readOnly />
+                        <Form.Control type="text" placeholder="Service name" value={service?.name} readOnly disabled/>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formServiceDescription">
                         <Form.Label>Service description</Form.Label>
-                        <Form.Control type="text" placeholder="Service description" value={service?.description} readOnly />
+                        <Form.Control type="text" placeholder="Service description" value={service?.description} readOnly disabled/>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formServicePlans">
                         <Row>
@@ -103,7 +111,7 @@ function SubscribeServiceForm(props) {
                             </Col>
                             <Col md={6}>
                                 <Form.Label>Plan description</Form.Label>
-                                <Form.Control as="textarea" placeholder="Plan description" value={planDescription} readOnly />
+                                <Form.Control as="textarea" placeholder="Plan description" value={planDescription} readOnly disabled/>
                             </Col>
                         </Row>
                     </Form.Group>

@@ -23,7 +23,6 @@ function SubscribedServicesPage (props) {
         if (auth.isLoading) {
             setIsLoading(true);
         } else {
-            setIsLoading(false);
             if (auth.isAuthenticated) {
                 // Get subscribed services from marketplace
                 getSubscribedServices(auth.user.access_token).then((response) => {
@@ -33,16 +32,23 @@ function SubscribedServicesPage (props) {
                                 setSubscribedServices([]);
                             } else {
                                 setSubscribedServices(data.subscriptions);
-                            }                            
+                            }
+                            setIsLoading(false);                            
+                        }).catch((error) => {
+                            console.log("Error getting subscribed services from marketplace: "+error);
+                            setError("Error getting subscribed services from marketplace");
+                            setIsLoading(false);
                         })
                     } else {
                         console.log("Error getting subscribed services from marketplace");
                         setError("Error getting subscribed services from marketplace");
+                        setIsLoading(false);
                     }
                 })
                 .catch((error) => {
-                    console.log("Error getting subscribed services from marketplace");
+                    console.log("Error getting subscribed services from marketplace: "+error);
                     setError("Error getting subscribed services from marketplace");
+                    setIsLoading(false);
                 })
             }
         }

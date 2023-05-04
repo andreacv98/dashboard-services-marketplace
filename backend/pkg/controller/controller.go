@@ -69,6 +69,8 @@ func AddServiceProvider(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -277,6 +279,8 @@ func SubscribeService(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -412,6 +416,8 @@ func GetSubscriptions(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -461,6 +467,8 @@ func AddDeploymentHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -535,6 +543,8 @@ func GetDeploymentsHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -645,6 +655,8 @@ func GetDeploymentHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -757,6 +769,8 @@ func AddPeerHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -844,7 +858,7 @@ func AddPeerHandler(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 202 {
+	if (resp.StatusCode == 202 || resp.StatusCode == 200) {
 		// Register peering into db
 		// Get peeringid from response body
 		// Read response body
@@ -892,6 +906,8 @@ func GetPeerHandle(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -967,6 +983,8 @@ func AddServiceInstanceHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -1146,7 +1164,26 @@ func AddServiceInstanceHandler(c *gin.Context) {
 		}
 		defer resp.Body.Close()
 
-		if(resp.StatusCode == http.StatusAccepted) {
+		if (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
+			// Create service instance into db and link it to the deployment
+			query := "INSERT INTO service_instance_requests (service_instance_id) VALUES ($1) RETURNING id"
+			var serviceInstanceRequestID int
+			err = utils.DbConfig.Db.QueryRow(query, serviceInstanceID).Scan(&serviceInstanceRequestID)
+			if err != nil {
+				utils.Logger.Error("Error while inserting service instance request into db", err)
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+
+			// Update deployment to add service instance request id
+			query = "UPDATE deployments SET service_instance_request_id = $1 WHERE id = $2"
+			_, err = utils.DbConfig.Db.Exec(query, serviceInstanceRequestID, deploymentID)
+			if err != nil {
+				utils.Logger.Error("Error while updating deployment", err)
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+		} else if(resp.StatusCode == http.StatusAccepted) {
 			// Get operation from response body
 			// Read response body
 			var remoteResponseServiceInstance = map[string]interface{}{}
@@ -1181,19 +1218,18 @@ func AddServiceInstanceHandler(c *gin.Context) {
 
 			// Send response
 			c.JSON(202, gin.H{"operation": operation})
-		} else {
-			// Read response body
-			body, err = ioutil.ReadAll(resp.Body)
-			if err != nil {
-				utils.Logger.Error("Error while reading response body", err)
-				c.JSON(500, gin.H{"error": err.Error()})
-				return
-			}
+		}
+		// Read response body
+		body, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			utils.Logger.Error("Error while reading response body", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
 
-			// Set response data
-			// Forward response
-			c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)
-		}		
+		// Set response data
+		// Forward response
+		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)	
 
 	} else {
 		utils.Logger.Error("Error getting peering status")
@@ -1209,6 +1245,8 @@ func GetServiceInstancesHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -1336,6 +1374,8 @@ func AddServiceBindingsHandler(c *gin.Context) {
 	// Get userid from token
 	ctx := context.Background()
 	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
 	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
 	if err != nil {
 		utils.Logger.Error("Error while decoding access token", err)
@@ -1435,6 +1475,8 @@ func AddServiceBindingsHandler(c *gin.Context) {
 
 	// Send request
 	clientHttp := &http.Client{}
+	// Wait 500ms
+	time.Sleep(500 * time.Millisecond)
 	resp, err := clientHttp.Do(req)
 	if err != nil {
 		utils.Logger.Error("Error while sending request", err)
@@ -1530,11 +1572,47 @@ func AddServiceBindingsHandler(c *gin.Context) {
 		}
 		defer resp.Body.Close()
 
-		if(resp.StatusCode == http.StatusCreated) {
+		if(resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
 			// Create service instance into db and link it to the deployment
+			// No operation id
 			query := "INSERT INTO service_binding_requests (service_binding_id) VALUES ($1) RETURNING id"
 			var serviceBindingRequestID int
 			err = utils.DbConfig.Db.QueryRow(query, serviceBindingID).Scan(&serviceBindingRequestID)
+			if err != nil {
+				utils.Logger.Error("Error while inserting service instance request into db", err)
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+
+			// Update deployment to add service binding request id
+			query = "UPDATE deployments SET service_binding_request_id = $1 WHERE id = $2"
+			_, err = utils.DbConfig.Db.Exec(query, serviceBindingRequestID, deploymentID)
+			if err != nil {
+				utils.Logger.Error("Error while updating deployment", err)
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+		} else if (resp.StatusCode == http.StatusAccepted) {
+			// Create service binding request into db and link it to the deployment with the operation id from the response
+
+			// Get operation from response body
+			// Read response body
+			var remoteResponseServiceInstance = map[string]interface{}{}
+			decoder := json.NewDecoder(resp.Body)
+			err = decoder.Decode(&remoteResponseServiceInstance)
+			if err != nil {
+				utils.Logger.Error("Error while reading response body", err)
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			// Get operation
+			operation := remoteResponseServiceInstance["operation"].(string)
+
+			// Create service instance into db and link it to the deployment
+			// No operation id
+			query := "INSERT INTO service_binding_requests (service_binding_id, operation_id) VALUES ($1, $2) RETURNING id"
+			var serviceBindingRequestID int
+			err = utils.DbConfig.Db.QueryRow(query, serviceBindingID, operation).Scan(&serviceBindingRequestID)
 			if err != nil {
 				utils.Logger.Error("Error while inserting service instance request into db", err)
 				c.JSON(500, gin.H{"error": err.Error()})
@@ -1571,6 +1649,134 @@ func AddServiceBindingsHandler(c *gin.Context) {
 
 func GetServiceBindingsHandler(c *gin.Context) {
 	// Useless because service binding seems to be synchronous operation
+	// Get userid from bearer tokenString
+	// Get tokenString from authorization header
+	tokenString := strings.Split(c.GetHeader("Authorization"), "Bearer ")[1]
+	// Get userid from token
+	ctx := context.Background()
+	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
+	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
+	if err != nil {
+		utils.Logger.Error("Error while decoding access token", err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	userID := (*claims)["sub"].(string)
+
+	// Get deployment id from parameters
+	deploymentID := c.Param("deploymentid")
+
+	// query to get user id, service provider url, service id, plan id, service instance id (from service instance requests table), service binding id (from service binding requests table) and operation id from database
+	query := "SELECT deployments.user_id, service_providers.url, deployments.service_id, deployments.plan_id, deployments.service_binding_request_id, service_binding_requests.service_binding_id, service_binding_requests.operation_id, service_instance_requests.service_instance_id FROM deployments INNER JOIN service_providers ON deployments.service_provider_id = service_providers.id INNER JOIN service_binding_requests ON deployments.service_binding_request_id = service_binding_requests.id INNER JOIN service_instance_requests ON deployments.service_instance_request_id = service_instance_requests.id WHERE deployments.id = $1"
+
+	// Execute query
+	var deploymentUserID string
+	var url string
+	var serviceId string
+	var planId string
+	var serviceBindingRequestId sql.NullInt32
+	var serviceBindingID string
+	var operationID sql.NullString
+	var serviceInstanceID string
+	err = utils.DbConfig.Db.QueryRow(query, deploymentID).Scan(&deploymentUserID, &url, &serviceId, &planId, &serviceBindingRequestId, &serviceBindingID, &operationID, &serviceInstanceID)
+	if err != nil {
+		utils.Logger.Error("Error while executing query", err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	if deploymentUserID != userID {
+		utils.Logger.Error("Deployment does not belong to the user")
+		c.JSON(403, gin.H{"error": "Deployment does not belong to the user"})
+		return
+	}
+
+	if operationID.Valid {
+		// Operation in progress
+		// Get last operation
+		// Make request with query params
+		// Wait for 1 second
+		time.Sleep(1 * time.Second)
+		req, err := http.NewRequest("GET", url+"/v2/service_instances/"+serviceInstanceID+"/service_bindings/"+serviceBindingID+"/last_operation?operation="+operationID.String, nil)
+		if err != nil {
+			utils.Logger.Error("Error while creating request", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		// Set headers
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Broker-API-Version", "2.17")
+		req.Header.Set("Authorization", "Bearer "+tokenString)
+		// Make request
+		clientHttp := &http.Client{}
+		resp, err := clientHttp.Do(req)
+		if err != nil {
+			utils.Logger.Error("Error while making request", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		// Parse response body
+		var remoteResponseServiceInstanceOperation map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&remoteResponseServiceInstanceOperation)
+		if err != nil {
+			utils.Logger.Error("Error while decoding response body", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		// Check state to udnerstand if delete operation id or not
+		state := remoteResponseServiceInstanceOperation["state"].(string)
+		if (state == "succeeded") {
+			// Operation succeeded return service instance
+			// Delete operation id from database
+			query = "UPDATE service_instance_requests SET operation_id = NULL WHERE id = $1"
+			_, err = utils.DbConfig.Db.Exec(query, serviceBindingRequestId)
+			if err != nil {
+				utils.Logger.Error("Error while updating service instance request", err)
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+		}
+		// Forward parse response body
+		c.JSON(resp.StatusCode, remoteResponseServiceInstanceOperation)		
+
+	} else {
+		// Service instance concluded return service instance
+		// Make request with query params
+		// Wait for 1 second
+		time.Sleep(1 * time.Second)
+		req, err := http.NewRequest("GET", url+"/v2/service_instances/"+serviceInstanceID+"/service_bindings/"+serviceBindingID+"?service_id="+serviceId+"&plan_id="+planId, nil)
+		if err != nil {
+			utils.Logger.Error("Error while creating request", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		// Set headers
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Broker-API-Version", "2.17")
+		req.Header.Set("Authorization", "Bearer "+tokenString)
+		// Make request
+		clientHttp := &http.Client{}
+		resp, err := clientHttp.Do(req)
+		if err != nil {
+			utils.Logger.Error("Error while making request", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		defer resp.Body.Close()
+
+		// Read response body
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			utils.Logger.Error("Error while reading response body", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Set response data
+		// Forward response
+		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)
+	}
 }
 
 func CORSMiddleware() gin.HandlerFunc {

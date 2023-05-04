@@ -23,9 +23,8 @@ function DeploymentsPage (props) {
         if (auth.isLoading) {
             setIsLoading(true);
         } else {
-            setIsLoading(false);
             if (auth.isAuthenticated) {
-                // Get subscribed services from marketplace
+                // Get deployments from marketplace
                 getDeployments(auth.user.access_token).then((response) => {
                     if (response.status === 200) {
                         response.json().then((data) => {
@@ -33,16 +32,23 @@ function DeploymentsPage (props) {
                                 setDeployments([]);
                             } else {
                                 setDeployments(data.deployments);
-                            }                            
+                            }
+                            setIsLoading(false);                            
+                        }).catch((error) => {
+                            console.log("Error getting deployments from marketplace: "+error);
+                            setError("Error getting deployments from marketplace");
+                            setIsLoading(false);
                         })
                     } else {
-                        console.log("Error getting subscribed services from marketplace");
-                        setError("Error getting subscribed services from marketplace");
+                        console.log("Error getting deployments from marketplace");
+                        setError("Error getting deployments from marketplace");
+                        setIsLoading(false);
                     }
                 })
                 .catch((error) => {
-                    console.log("Error getting subscribed services from marketplace");
-                    setError("Error getting subscribed services from marketplace");
+                    console.log("Error getting deployments from marketplace: "+error);
+                    setError("Error getting deployments from marketplace");
+                    setIsLoading(false);
                 })
             }
         }
