@@ -4,6 +4,7 @@ import Form from '@rjsf/bootstrap-4';
 import validator from '@rjsf/validator-ajv8';
 import { useAuth } from "react-oidc-context";
 import { peerDeployment, checkPeering, instanceService, checkInstance, checkBinding, bindService, getServices } from "../configs/marketplaceConfig";
+import { Cloud, House, Shuffle } from "react-bootstrap-icons";
 
 function DeployForm(props) {
 
@@ -36,6 +37,7 @@ function DeployForm(props) {
     const [bindable, setBindable] = useState(false);
     const [parameters, setParameters] = useState({});
     const [parametersBinding, setParametersBinding] = useState({});
+    const [peeringPolicies, setPeeringPolicies] = useState([]);
 
     const [peerCommand, setPeerCommand] = useState("");
     const [clusterid, setClusterId] = useState("");
@@ -43,6 +45,7 @@ function DeployForm(props) {
     const [clusterauthurl, setClusterAuthUrl] = useState("");
     const [clusterauthtoken, setClusterAuthToken] = useState("");
     const [prefixNamespace, setPrefixNamespace] = useState("");
+    const [offloadingPolicy, setOffloadingPolicy] = useState("")
 
     const [peeringCheckPhase, setPeeringCheckPhase] = useState(false);
     const [instanceCheckPhase, setInstanceCheckPhase] = useState(false);
@@ -60,7 +63,19 @@ function DeployForm(props) {
     
     const uiSchemaInstance = {
         'ui:submitButtonOptions': {
-            submitText: 'Submit',
+            submitText: 'Create service instance',
+            props: {
+                disabled: (instanceStatus || instanceStarted)
+            },
+          },
+    }
+
+    const uiSchemaBinding = {
+        'ui:submitButtonOptions': {
+            submitText: 'Create service binding',
+            props: {
+                disabled: (bindingStatus || bindingStarted)
+            },
           },
     }
 
@@ -123,6 +138,8 @@ function DeployForm(props) {
 
                 setServiceName(serviceFound.name)
                 setPlanName(planFound.name)
+                setPeeringPolicies(planFound.peering_policies)
+                setOffloadingPolicy(planFound.peering_policies[0])
                 if(planFound.schemas.service_instance.create.parameters !== undefined) {
                     setParameters(planFound.schemas.service_instance.create.parameters)
                 }
@@ -358,6 +375,7 @@ function DeployForm(props) {
                 clustername,
                 clusterauthurl,
                 clusterauthtoken,
+                offloadingPolicy,
                 prefixNamespace
             ).then((response) => {
                 if (response.status === 202 || response.status === 200) {
@@ -480,6 +498,31 @@ function DeployForm(props) {
         });
       };
 
+    const translatePolicy = (policy) => {
+        switch (policy) {
+            case "Local":
+                return (
+                    <span>
+                        <Cloud/> Hosted by the service provider's cluster
+                    </span>                    
+                )
+            case "Remote":
+                return (
+                    <span>
+                    <House/> Hosted by the user's cluster
+                    </span>
+                )
+            case "LocalAndRemote":
+                return (
+                    <span>
+                    <Shuffle/> Hosted by both the service provider's cluster and the user's cluster
+                    </span>
+                )
+            default:
+                return "Unknown policy"
+                }
+    }
+
     switch (step) {
         case 0:
             return (
@@ -529,12 +572,33 @@ function DeployForm(props) {
                 </pre>
                 <br/>
                 <p>Then paste the result into the following box and edit single informations if any of it is wrong: </p>
-                <BootstrapForm>
-                    <BootstrapForm.Group controlId="formPeerCommand" className="m-3">
-                        <BootstrapForm.Label>Peer command</BootstrapForm.Label>
-                        <BootstrapForm.Control as="textarea" rows={3} placeholder="Peer command" value={peerCommand} onChange={(e) => setPeerCommand(e.target.value)}/>
-                    </BootstrapForm.Group>
-                </BootstrapForm>
+                <Row>
+                    <Col>
+                        <BootstrapForm>
+                            <BootstrapForm.Group controlId="formPeerCommand" className="m-3">
+                                <BootstrapForm.Label>Peer command</BootstrapForm.Label>
+                                <BootstrapForm.Control as="textarea" rows={3} placeholder="Peer command" value={peerCommand} onChange={(e) => setPeerCommand(e.target.value)}/>
+                            </BootstrapForm.Group>
+                        </BootstrapForm>
+                    </Col>
+                    <Col>
+                        <BootstrapForm>
+                            <BootstrapForm.Group controlId="peeringPolicy" className="m-3">
+                                <BootstrapForm.Label>Peering Policy</BootstrapForm.Label>
+                                {peeringPolicies.map((policy) => (
+                                    <BootstrapForm.Check
+                                    type="radio"
+                                    key={policy}
+                                    label={translatePolicy(policy)}
+                                    checked={offloadingPolicy == policy}
+                                    onChange={() => setOffloadingPolicy(policy)}
+                                    />
+                                ))}
+                            </BootstrapForm.Group>
+                        </BootstrapForm>
+                    </Col>
+                </Row>
+                
                 <hr/>
                 <BootstrapForm>
                     <BootstrapForm.Group controlId="formClusterId" className="m-3">
@@ -627,6 +691,7 @@ function DeployForm(props) {
                     onChange={(e) => setBindingData(e.formData)}
                     onSubmit={handleServiceBinding}
                     onError={(error) => setError(error.message)}
+                    uiSchema={uiSchemaBinding}
                     transformErrors={transformErrors}
                     >                        
                     </Form>

@@ -824,7 +824,7 @@ func AddPeerHandler(c *gin.Context) {
 		ClusterName:      peeringRequest.ClusterName,
 		AuthURL:          peeringRequest.AuthURL,
 		Token:            peeringRequest.Token,
-		OffloadingPolicy: "Remote",
+		OffloadingPolicy: peeringRequest.OffloadingPolicy,
 		UserID:           userID,
 		PrefixNamespace:  peeringRequest.PrefixNamespace,
 	}

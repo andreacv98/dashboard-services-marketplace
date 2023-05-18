@@ -1,4 +1,4 @@
-import { Card } from "react-bootstrap";
+import { Badge, Card } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 
 function ServiceCard (props) {
@@ -22,9 +22,14 @@ function ServiceCard (props) {
                         {serviceDescription}
                     </Card.Text>
                     <Card.Text>
-                        Tags: {serviceTags}
+                        Tags:
+                        <br/>
+                        {serviceTags.map((tag) => (
+                            <Badge pill bg="primary" className="m-1" key={tag}>{tag}</Badge>
+                        ))
+                        }
                     </Card.Text>
-                    <Button variant="primary" href={buyUrl}>Buy</Button>
+                    <Button variant="primary" href={buyUrl}>Explore</Button>
                 </Card.Body>
             </Card>
         </>
