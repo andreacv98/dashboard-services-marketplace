@@ -1,13 +1,12 @@
-import { Form, Button, Alert, Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Form, Button, Alert, Container, Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { getServices } from '../configs/marketplaceConfig';
 import { useAuth } from 'react-oidc-context';
 import { useEffect, useState } from 'react';
 import { subscribeService } from '../configs/marketplaceConfig';
-import { Cloud, House, Shuffle } from 'react-bootstrap-icons';
+import { CheckCircleFill, Cloud, House, InfoCircleFill, Shuffle, XCircleFill } from 'react-bootstrap-icons';
 
 function SubscribeServiceForm(props) {
     const auth = useAuth();
-    const isLoading = props.isLoading;
     const setIsLoading = props.setIsLoading;
     const idServiceProvider = props.idServiceProvider;
     const idService = props.idService;
@@ -108,68 +107,83 @@ function SubscribeServiceForm(props) {
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formServiceDescription">
                         <Form.Label>Service description</Form.Label>
-                        <Form.Control type="text" placeholder="Service description" value={service?.description} readOnly disabled/>
+                        <Form.Control as="textarea" placeholder="Service description" value={service?.description} readOnly disabled rows={5}/>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formServicePlans">
+                        <Form.Label>Service plans</Form.Label>
+                        <Form.Select aria-label="Service plans" onChange={handlePlanSelection}>
+                        {service?.plans.map((plan, index) => {
+                            return (
+                            <option key={plan.id} value={plan.id}>{plan.name}</option>
+                            )
+                        })}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formServicePlansDescriptions">
+                        <Form.Label>Plan description</Form.Label>
+                        <Form.Control as="textarea" placeholder="Plan description" value={planDescription} readOnly disabled rows={5}/>
+                    </Form.Group>
+                </Form>
+                        <p>Hosting policies available</p>
+                    <Container>
+                    <Row>
+                            <Col>
+                                <p
+                                    className= {peeringPolicies.includes("Remote") ? "text-success" : "text-danger"}
+                                >
+                                    <Cloud size={32} /> &ensp; Remotely hostable {peeringPolicies.includes("Remote") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
+                                    placement='right'
+                                    overlay={renderTooltip("Remotely hosted by service provider cluster")}
+                                >
+                                    <span className='text-info'><InfoCircleFill size={20}/></span>
+                                </OverlayTrigger></p>
+                            </Col>                                
+                        </Row>
                         <Row>
-                            <Col md={6}>
-                                <Form.Label>Service plans</Form.Label>
-                                <Form.Select aria-label="Service plans" onChange={handlePlanSelection}>
-                                {service?.plans.map((plan, index) => {
-                                    return (
-                                    <option key={plan.id} value={plan.id}>{plan.name}</option>
-                                    )
-                                })}
-                                </Form.Select>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Label>Plan description</Form.Label>
-                                <Form.Control as="textarea" placeholder="Plan description" value={planDescription} readOnly disabled/>
+                            <Col>
+                                <p
+                                    className= {peeringPolicies.includes("Local") ? "text-success" : "text-danger"}
+                                >
+                                    <House size={32} /> &ensp; Locally hostable {peeringPolicies.includes("Local") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
+                                    placement='right'
+                                    overlay={renderTooltip("Locally hosted by your cluster")}
+                                >
+                                    <span className='text-info'><InfoCircleFill size={20}/></span>
+                                </OverlayTrigger></p>
                             </Col>
                         </Row>
                         <Row>
                             <Col>
-                                <Form.Label>Hosting policies available</Form.Label>
+                                <p
+                                    className= {peeringPolicies.includes("LocalAndRemote") ? "text-success" : "text-danger"}
+                                >
+                                    <Shuffle size={32} /> &ensp; Hybridly hostable {peeringPolicies.includes("LocalAndRemote") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
+                                    placement='right'
+                                    overlay={renderTooltip("Hybridly hosted by your cluster and service provider cluster")}
+                                >
+                                    <span className='text-info'><InfoCircleFill size={20}/></span>
+                                </OverlayTrigger></p>
                             </Col>
                         </Row>
+                    </Container>
+                        
+                    <Container>
                         <Row>
-                                <Col>
-                                <OverlayTrigger
-                                    placement='top'
-                                    overlay={renderTooltip("Remotely hosted by service provider cluster")}
-                                >
-                                    <Badge pill bg={peeringPolicies.includes("Local") ? "success" : "danger"} className="p-2">
-                                        <Cloud size={32} />
-                                    </Badge>
-                                </OverlayTrigger>
-                                    
-                                </Col>
-                                <Col>
-                                    <OverlayTrigger
-                                        placement='top'
-                                        overlay={renderTooltip("Locally hosted by your cluster")}
-                                    >
-                                        <Badge pill bg={peeringPolicies.includes("Remote") ? "success" : "danger"} className="p-2">
-                                            <House size={32} />
-                                        </Badge>
-                                    </OverlayTrigger>
-                                </Col>
-                                <Col>
-                                    <OverlayTrigger
-                                        placement='top'
-                                        overlay={renderTooltip("Hybridly hosted by your cluster and service provider cluster")}
-                                    >
-                                        <Badge pill bg={peeringPolicies.includes("LocalAndRemote") ? "success" : "danger"} className="p-2">
-                                            <Shuffle size={32} />
-                                        </Badge>
-                                    </OverlayTrigger>
-                                </Col>
+                            <Col>
+                                <Button classname="mr-3" variant="primary" href="/catalog">
+                                    Go Back
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Button classname="mr-3" variant="primary" type="submit" onClick={handleSubscription}>
+                                    Buy
+                                </Button>
+                            </Col>
                         </Row>
-                    </Form.Group>
-                    <Button variant="primary" type="submit" onClick={handleSubscription}>
-                        Subscribe
-                    </Button>
-                </Form>         
+                    </Container>
+                    
+                    
+                       
                 <Alert variant="danger" show={error !== ""} onClose={() => setError("")} dismissible>
                     <Alert.Heading>Error</Alert.Heading>
                     <p>{error}</p>

@@ -1,6 +1,7 @@
 import { useAuth } from "react-oidc-context";
-import { Spinner } from "react-bootstrap";
+import { Alert, Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { Navigate } from "react-router-dom";
+import { Container } from "react-bootstrap";
 
 function Profile (props) {
 
@@ -19,10 +20,37 @@ function Profile (props) {
         if (auth.isAuthenticated) {
             return (
                 <>
-                    <h1>Hello user {auth.user?.profile.name} </h1>
-                    <p>Your access token will expire at: {formattedExpirationDate}</p>
-                    <p>Automatic silent renew: {auth.activeNavigator} </p>
-                    <p className="error">Any error: {auth.error?.message} </p>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <h1 className="text-center m-3">Profile</h1>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Card className="m-3">
+                                    <Card.Header>
+                                        <Card.Title>Personal information</Card.Title>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <Card.Text>
+                                            <p>Username: {auth.user?.profile.preferred_username}</p>
+                                            <p>First name: {auth.user?.profile.given_name}</p>
+                                            <p>Last name: {auth.user?.profile.family_name}</p>
+                                            <p>Email: {auth.user?.profile.email}</p>
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>                                
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Alert variant="danger" show={auth.error !== undefined}>
+                                    {auth.error?.message}
+                                </Alert>
+                            </Col>
+                        </Row>
+                    </Container>
                 </>
             )
         } else {

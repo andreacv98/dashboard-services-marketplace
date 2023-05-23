@@ -18,23 +18,23 @@ function Home(props) {
                         <Card style={{ width: '25rem' }} className="m-3">
                             <Card.Body>
                                 <Card.Title className="text-center">
-                                    BUY A SERVICE
+                                    EXPLORE CATALOGS
                                 </Card.Title>
                                 <Card.Text>
                                     You are looking for the right service for your application inside your cluster? Just explore our catalog and find the right one for you!
                                 </Card.Text>
-                                <Button variant="primary" href="/catalog">Go to Catalog</Button>
+                                <Button variant="primary" href="/catalog">Go to Catalogs</Button>
                             </Card.Body>
                         </Card>
                         <Card style={{ width: '25rem' }} className="m-3">
                             <Card.Body>
                                 <Card.Title className="text-center">
-                                    OFFER A SERVICE
+                                    REGISTER YOUR CATALOG
                                 </Card.Title>
                                 <Card.Text>
-                                    You want to offer your service to the community? Just register your service provider server and let the community know about it!
+                                    You want to offer your services to the community? Just register your catalog server and let the community know about them!
                                 </Card.Text>
-                                <Button variant="primary" href="/service-providers/register">Go to Service Registration</Button>
+                                <Button variant="primary" href="/service-providers/register">Go to Catalog Registration</Button>
                             </Card.Body>
                         </Card>
                     </Container>

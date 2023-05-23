@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
-import { Alert, Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Alert, Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import { BsFillClipboardFill } from "react-icons/bs";
 import { addServiceProvider } from "../configs/marketplaceConfig";
 import { checkServiceBrokerReadiness } from "../utils/utils";
+import { Github } from 'react-bootstrap-icons';
 
 function ServiceProviderForm(props) {
     const auth = useAuth();
@@ -123,42 +124,87 @@ function ServiceProviderForm(props) {
                         <Row>
                             <Col>
                                 <Container className="p-3 text-center">
-                                    <h1 className="text-center">Service Provider Registration</h1>
+                                    <h1 className="text-center">Catalog Registration</h1>
                                 </Container>
                             </Col>
                         </Row>
                         <Row>
                             <Col>
                                 <Container fluid className="p-3 ">                        
+                                    <h2>What's a catalog?</h2>
                                     <p>
-                                        This is the service provider registration page. <br/>
-                                        Here you can registrate the service broker, which should be at least an Rest API server OpenService Broker API compliant.
-                                        Further information about the OpenService Broker API can be found <a href="https://www.openservicebrokerapi.org/">here</a>.
-                                        <br/>
-                                        Moreover it has to provide marketplace endpoints, which are describe <a href="#">here</a> and Liqo technology enabled.
-                                    </p>
-                                    <br/>
-                                    <hr/>
-                                    <p>                                    
-                                        <b>Please notice: the service broker must be reachable at 'URL + /readyz'.</b>
+                                        In order to offer your services into the marketplace you can register your catalog in our system.
+                                        The catalog is a REST API server which will expose all your services according to the Open Service Broker API EXTENDED specification.
+                                        To get a seamless communication and functioning with our system, please assure that your catalog meets the requirements.
                                     </p>
                                 </Container>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col>
+                                <Container fluid className="p-3">
+                                    <h3>Requirements</h3>
+                                    <ul>
+                                        <li>Rest API servier compliant to the <a href="https://raw.githubusercontent.com/andreacv98/service-broker-k8s/keycloak/documentation/openapi.yaml" target="blank">Open Service Broker API extended specification</a></li>
+                                        <ul>
+                                            <li>API security supporting <a href="https://openid.net/specs/openid-connect-core-1_0.html" target="blank">OpenID Connect specification</a></li>
+                                            <li><a href="https://liqo.io/" target="blank">Liqo</a> support and integration</li>
+                                        </ul>
+                                        <li>Reachable from Internet network</li>
+                                    </ul>
+                                </Container>
+                            </Col>
+                            <Col>
+                                <Container fluid className="p-3">
+                                    <Card>
+                                        <Card.Header>
+                                            <Card.Title>Catalog example server</Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <Card.Text>
+                                                <p>
+                                                    We can provide you a ready-to-use catalog which meets all the requirements. Just follow the instructions in the <a href="
+                                                    https://github.com/andreacv98/service-broker-k8s/blob/master/README.md" target="_blank">README</a> file of the project.
+                                                    <br/>
+                                                    Some examples can be found in the <a href="https://github.com/andreacv98/service-broker-k8s/tree/master/examples" target="_blank">example</a> folder of the project.
+                                                </p>
+                                            </Card.Text>
+                                        </Card.Body>
+                                        <Card.Footer>
+                                            <Button variant="outline-dark" href="https://github.com/andreacv98/service-broker-k8s" target="_blank" rel="noopener noreferrer">
+                                                <Github size={20} style={{ marginRight: '0.5rem' }} />
+                                                Github repository
+                                            </Button>
+                                        </Card.Footer>
+                                    </Card>                                    
+                                </Container>
+                            </Col>
+                        </Row>
                     </Col>
+                </Row>
+                <hr />
+                <Row>
+                    <Col>
+                        <h3>Catalog informations</h3>
+                    </Col>
+                </Row>
+                <Row>
                     <Col>
                         <Form className="p-3">
                             <Form.Group className="mb-3" controlId="formName">
                                 <Form.Label>Name</Form.Label>
                                 <Form.Control type="text" placeholder="Enter name" value={name} onChange={(e) => setName(e.target.value)} />
+                                <Form.Text>The name of your catalog. It will be recognized by all the users inside the marketplace by this identification.</Form.Text>
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="formDescription">
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control as="textarea" placeholder="Enter description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                                <Form.Text>The description of your catalog. Few words to describe the catalog and its content to all users.</Form.Text>
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="formUrl">
                                 <Form.Label>URL</Form.Label>
                                 <Form.Control type="text" placeholder="Enter URL" value={url} onChange={(e) => setUrl(e.target.value)} />
+                                <Form.Text>The URL of your catalog. It will be used to reach your catalog and its services. "HTTPS" URL is recommended.</Form.Text>
                             </Form.Group>
                             <Button variant="primary" type="submit" onClick={handleSubmit}>Register</Button>
                         </Form>

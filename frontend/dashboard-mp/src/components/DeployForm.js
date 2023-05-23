@@ -4,7 +4,7 @@ import Form from '@rjsf/bootstrap-4';
 import validator from '@rjsf/validator-ajv8';
 import { useAuth } from "react-oidc-context";
 import { peerDeployment, checkPeering, instanceService, checkInstance, checkBinding, bindService, getServices } from "../configs/marketplaceConfig";
-import { Cloud, House, Shuffle } from "react-bootstrap-icons";
+import { CheckCircleFill, Cloud, House, Shuffle, XCircleFill } from "react-bootstrap-icons";
 
 function DeployForm(props) {
 
@@ -546,7 +546,10 @@ function DeployForm(props) {
                         </BootstrapForm.Group>
                         <BootstrapForm.Group controlId="formServiceName" className="m-3">
                             <BootstrapForm.Label>Bindable service</BootstrapForm.Label>
-                            <BootstrapForm.Check type="checkbox" label={bindable ? "The service will automatically be binded to the application" : ""} checked={bindable} disabled readOnly/>
+                            <p className={bindable ? "text-success" : "text-danger"}>{bindable ? <CheckCircleFill /> : <XCircleFill />} {bindable ? "The service will automatically be binded to the applications" : "Not automatic binding to the applications"}</p>
+                            <BootstrapForm.Text className="text-muted">
+                                Capability of the service to be automatically binded to the applications on your cluster
+                            </BootstrapForm.Text>
                         </BootstrapForm.Group>
                     </BootstrapForm>
                 <hr/>

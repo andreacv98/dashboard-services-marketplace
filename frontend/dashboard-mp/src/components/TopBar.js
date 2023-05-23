@@ -18,8 +18,8 @@ function TopBar (props) {
               {
                 auth.isAuthenticated ? (
                   <>
-                    <Nav.Link href="/subscriptions">My subscriptions</Nav.Link>
-                    <Nav.Link href="/deployments">My deployment</Nav.Link>
+                    <Nav.Link href="/subscriptions">My purchases</Nav.Link>
+                    <Nav.Link href="/deployments">My deployments</Nav.Link>
                   </>
                 ) : (
                   <></>
