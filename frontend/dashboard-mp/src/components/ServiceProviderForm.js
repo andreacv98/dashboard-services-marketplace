@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
-import { Alert, Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import { Accordion, Alert, Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import { BsFillClipboardFill } from "react-icons/bs";
 import { addServiceProvider } from "../configs/marketplaceConfig";
 import { checkServiceBrokerReadiness } from "../utils/utils";
-import { Github } from 'react-bootstrap-icons';
+import { Front, Github } from 'react-bootstrap-icons';
 
 function ServiceProviderForm(props) {
     const auth = useAuth();
@@ -20,6 +20,9 @@ function ServiceProviderForm(props) {
         client_id: "",
         client_secret: ""
     });
+    const [defaultCommand, setDefaultCommand] = useState("");
+    const [testedCatalog, setTestedCatalog] = useState(false);
+    const [step, setStep] = useState(0);
 
     useEffect(() => {
         console.log("Is loading: " + props.isLoading)
@@ -56,7 +59,8 @@ function ServiceProviderForm(props) {
     const handleTestSvcProvider = (event) => {
         event.preventDefault();
         setIsLoading(true);
-        console.log("Testing service provider... : " + url)
+        setTestedCatalog(true);
+        console.log("Testing catalog... : " + url)
         checkServiceBrokerReadiness(url).then((result) => {
             if (result) {
                 setError("");
@@ -112,6 +116,14 @@ function ServiceProviderForm(props) {
         }
         return "";  
     }
+
+    useEffect(() => {
+        if (credentials.authority_url !== "" && credentials.realm !== "" && credentials.client_id !== "" && credentials.client_secret !== "") {
+            setDefaultCommand('curl -X POST -H "Content-Type: application/json" -H "X-Broker-API-Version: 2.17" --data \'{"auth_url": "'+credentials.authority_url+'", "realm": "'+credentials.realm+'", "client_id": "'+credentials.client_id+'", "client_secret": "'+credentials.client_secret+'"}\' '+url+'/auth/credentials')
+        } else {
+            setDefaultCommand("")
+        }
+    }, [credentials])
 
     if (credentials.authority_url === "" && credentials.realm === "" && credentials.client_id === "" && credentials.client_secret === "") {
         // Show form
@@ -205,7 +217,7 @@ function ServiceProviderForm(props) {
                                 <Form.Control type="text" placeholder="Enter URL" value={url} onChange={(e) => setUrl(e.target.value)} />
                                 <Form.Text>The URL of your catalog. It will be used to reach your catalog and its services. "HTTPS" URL is recommended.</Form.Text>
                             </Form.Group>
-                            <Button variant="primary" type="submit" onClick={handleSubmit}>Register</Button>
+                            <Button variant="primary" type="submit" onClick={handleSubmit}>Next</Button>
                         </Form>
                     </Col>
                 </Row>
@@ -223,130 +235,189 @@ function ServiceProviderForm(props) {
         )
     } else {
         // Show credentials
-        return (
-            <>
-            <Container className="p-3">
-                <Row>
-                    <Col>
-                        <Alert variant="success">
-                            <Alert.Heading>Catalog successfully registered!</Alert.Heading>
+        if (step === 0) {
+            return (
+                <Container className="p-3">
+                    <Row>
+                        <Col>
+                            <h2>Authentication configuration</h2>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
                             <p>
-                                Your catalog has been successfully registered in the marketplace!
-                                <br/>
-                                This is the recap of your catalog informations:
+                                The marketplace will contact your protected catalog APIs with an access token issued by this OpenID Connect authentication server.
                             </p>
-                            <Form>
-                                <Row>
-                                    <Col>
-                                        <Form.Group className="mb-3" controlId="Name">
-                                            <Form.Label>Name</Form.Label>
-                                            <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col>
-                                        <Form.Group className="mb-3" controlId="Url">
-                                            <Form.Label>URL</Form.Label>
-                                            <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <Form.Group className="mb-3" controlId="Description">
-                                            <Form.Label>Description</Form.Label>
-                                            <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>                      
-                            </Form>
-                        </Alert>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <Card>
-                            <Card.Header>
-                                <Card.Title>Authentication server</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <Card.Text>
-                                    <p>
-                                        The marketplace will contact your protected catalog APIs with an access token issued by this OpenID Connect authentication server.
-                                        <br/>
-                                        <hr/>
-                                        <Form>
-                                            <Form.Group className="mb-3" controlId="Url">
-                                                <Form.Label>URL</Form.Label>
-                                                <Form.Control type="text" placeholder="Authentication server URL" value={credentials.authority_url+"/"+credentials.realm} readOnly disabled/>
-                                            </Form.Group>
-                                        </Form>
-                                    </p>
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>                                
-                    </Col>
-                    <Col>
-                        <Card>
-                            <Card.Header>
-                                    <Card.Title>OpenID Connect server connection details</Card.Title>
-                            </Card.Header>
+                            <p>
+                                You need to setup the security configuration of your catalog in order to accept requests from the marketplace. This step depends on your catalog implementation.
+                            </p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Alert variant="warning">
+                                <Alert.Heading>IMPORTANT STEP</Alert.Heading>
+                                <p>
+                                    The authentication configuration is really important in order to make your catalog work with the marketplace. Please follow the instructions below.
+                                </p>
+                            </Alert>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Card>
+                                <Card.Header>
+                                    <Card.Title>Did you register our Catalog example server?</Card.Title>
+                                </Card.Header>
                                 <Card.Body>
                                     <Card.Text>
-                                        <p>
-                                            The marketplace has issued a client ID and a client secret to be used to authenticate the catalog if your implementation needs it.
-                                            With these credentials you can get an access token as service account and use it to call user info protected APIs on the authentication server.
-                                        </p>
+                                        <p>If you've just registered a catalog based on our catalog example server, then you can setup the security configuration by executing the following command: </p>
+                                        <br />
                                         <Form>
-                                            <Row>
-                                                <Col>
-                                                    <Form.Group className="m-3" controlId="formAuthorityURL">
-                                                        <Form.Label>Authority URL</Form.Label>
-                                                        <Form.Control type="text" placeholder="Authority URL" value={credentials.authority_url} readOnly />
-                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.authority_url)} >Copy authority URL <BsFillClipboardFill /></Button>
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col>
-                                                    <Form.Group className="m-3" controlId="formRealm">
-                                                        <Form.Label>Realm</Form.Label>
-                                                        <Form.Control type="text" placeholder="Realm" value={credentials.realm} readOnly />
-                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.realm)} >Copy realm <BsFillClipboardFill /></Button>
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Form.Group className="m-3" controlId="formClientId">
-                                                        <Form.Label>Client ID</Form.Label>
-                                                        <Form.Control type="text" placeholder="Client ID" value={credentials.client_id} readOnly />
-                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.client_id)} >Copy client ID <BsFillClipboardFill /></Button>
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col>
-                                                    <Form.Group className="m-3" controlId="formClientSecret">
-                                                        <Form.Label>Client Secret</Form.Label>
-                                                        <Form.Control type="text" placeholder="Client secret" value={credentials.client_secret} readOnly />
-                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.client_secret)} >Copy client secret <BsFillClipboardFill /></Button>
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>                                     
+                                            <Form.Group className="m-3 d-flex align-items-center" controlId="curlCommand" >
+                                                <Form.Control as="textarea" placeholder="Curl command" value={defaultCommand} readOnly rows="5"/>
+                                                <Button className="text-center m-2" onClick={ () => navigator.clipboard.writeText(defaultCommand)} ><BsFillClipboardFill /></Button>
+                                            </Form.Group>
                                         </Form>
+                                        <br />
+                                        <p>After executing this command you can proceed.</p>
                                     </Card.Text>
                                 </Card.Body>
-                        </Card> 
-                    </Col>
-                </Row>           
-                    <Button className="m-3" onClick={reset}>
-                        Register another catalog
-                    </Button>
-                    <Button className="m-3" onClick={handleTestSvcProvider} variant={ready ? "success" : "danger"}>
-                        Test catalog connection
-                    </Button>
-                    <Button className="m-3" href="/catalog">
-                        Go to catalog
-                    </Button>
-            </Container>
-            </>
-        )
+                            </Card>
+                        </Col>
+                        <Col>
+                            <Card>
+                                <Card.Header>
+                                    <Card.Title>Did you register a custom catalog server?</Card.Title>
+                                </Card.Header>
+                                <Card.Body>
+                                    <Card.Text>
+                                        <p>If you've registered a custom catalog server, then you need to setup the security configuration by yourself.</p>
+                                        <br />
+                                        <p>The catalog APIs will be contacted along with an authorization token provided by this OpenID Connect server:</p>
+                                        <Form>
+                                            <Form.Group className="m-3 d-flex align-items-center" controlId="Url">
+                                                <Form.Control type="text" placeholder="Authentication server URL" value={credentials.authority_url+"/"+credentials.realm} readOnly disabled/>
+                                                <Button className="text-center m-2" onClick={ () => navigator.clipboard.writeText(credentials.authority_url+"/"+credentials.realm)} ><BsFillClipboardFill /></Button>
+                                            </Form.Group>
+                                        </Form>
+                                        <hr/>
+                                        <p>If you need a service account for your catalog server to call protected APIs on the authentication server, then you can find the credentials below: </p>
+                                        <Accordion>
+                                            <Accordion.Item eventKey="0">
+                                                <Accordion.Header><b>Service account credentials</b></Accordion.Header>
+                                                <Accordion.Body>
+                                                    <Form>
+                                                        <Row>
+                                                            <Col>
+                                                                <Form.Group className="m-3 d-flex align-items-center" controlId="formAuthorityURL">
+                                                                    <Form.Label>Authority URL</Form.Label>
+                                                                    <Form.Control type="text" placeholder="Authority URL" value={credentials.authority_url} readOnly />
+                                                                    <Button className="text-center m-2" onClick={ () => navigator.clipboard.writeText(credentials.authority_url)} ><BsFillClipboardFill /></Button>
+                                                                </Form.Group>
+                                                            </Col>
+                                                            <Col>
+                                                                <Form.Group className="m-3 d-flex align-items-center" controlId="formRealm">
+                                                                    <Form.Label>Realm</Form.Label>
+                                                                    <Form.Control type="text" placeholder="Realm" value={credentials.realm} readOnly />
+                                                                    <Button className="text-center m-2" onClick={ () => navigator.clipboard.writeText(credentials.realm)} ><BsFillClipboardFill /></Button>
+                                                                </Form.Group>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row>
+                                                            <Col>
+                                                                <Form.Group className="m-3 d-flex align-items-center" controlId="formClientId">
+                                                                    <Form.Label>Client ID</Form.Label>
+                                                                    <Form.Control type="text" placeholder="Client ID" value={credentials.client_id} readOnly />
+                                                                    <Button className="text-center m-2" onClick={ () => navigator.clipboard.writeText(credentials.client_id)} ><BsFillClipboardFill /></Button>
+                                                                </Form.Group>
+                                                            </Col>
+                                                            <Col>
+                                                                <Form.Group className="m-3 d-flex align-items-center" controlId="formClientSecret">
+                                                                    <Form.Label>Client Secret</Form.Label>
+                                                                    <Form.Control type="text" placeholder="Client secret" value={credentials.client_secret} readOnly />
+                                                                    <Button className="text-center m-2" onClick={ () => navigator.clipboard.writeText(credentials.client_secret)} ><BsFillClipboardFill /></Button>
+                                                                </Form.Group>
+                                                            </Col>
+                                                        </Row>                                     
+                                                    </Form>
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        </Accordion>
+                                        <hr/>
+                                        <p>After setting up the security configuration you can proceed.</p>
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Container className="p-3 text-center">
+                                <Button className="m-3" onClick={() => setStep(1)} variant="primary" >
+                                    Configuration completed
+                                </Button>
+                            </Container>
+                        </Col>
+                    </Row>
+                </Container>
+            )
+        } else {
+            return (
+                <>
+                <Container className="p-3">
+                    <Row>
+                        <Col>
+                            <Alert variant={testedCatalog ? ready ? "success" : "danger" : "info"}>
+                                <Alert.Heading>Catalog successfully registered!</Alert.Heading>
+                                <p>
+                                    Your catalog has been successfully registered in the marketplace!
+                                    <br/>
+                                    This is the recap of your catalog informations:
+                                </p>
+                                <Form>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group className="mb-3" controlId="Name">
+                                                <Form.Label>Name</Form.Label>
+                                                <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col>
+                                            <Form.Group className="mb-3" controlId="Url">
+                                                <Form.Label>URL</Form.Label>
+                                                <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group className="mb-3" controlId="Description">
+                                                <Form.Label>Description</Form.Label>
+                                                <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>                      
+                                </Form>
+                                <hr />
+                                <div className="d-flex justify-content-end">
+                                    <Button onClick={handleTestSvcProvider} variant="outline-primary">
+                                    Test catalog reachability
+                                    </Button>
+                                </div>
+                            </Alert>
+                        </Col>
+                    </Row>           
+                        <Button className="m-3" variant="outline-primary" onClick={reset}>
+                            Register another catalog
+                        </Button>
+                        <Button className="m-3" href="/catalog">
+                            Explore catalogs
+                        </Button>
+                </Container>
+                </>
+            )
+        }
     }
     
 }
