@@ -74,16 +74,15 @@ function ServiceProviderForm(props) {
 
     const sendRegistrationRequest = async () => {
         // Send HTTP request to backend
-        addServiceProvider(name, description, url, auth.user?.access_token).then((response) => {
-            if (response.status === 200) {
-                response.json().then((result) => {
-                    console.log("Registration successful! : " + result)
-                    setCredentials(result)
-                });                
-            } else {
-                return "Error registering service provider!";
-            }
-        });
+        var response = await addServiceProvider(name, description, url, auth.user?.access_token)
+        if (response.status === 200) {
+            var result = await response.json()
+            console.log("Registration successful! : " + result)
+            setCredentials(result)      
+        } else {
+            var result = await response.json()
+            return "Error registering service provider: " + result.error;
+        }
 
         return "";
     }
@@ -145,7 +144,7 @@ function ServiceProviderForm(props) {
                                 <Container fluid className="p-3">
                                     <h3>Requirements</h3>
                                     <ul>
-                                        <li>Rest API servier compliant to the <a href="https://raw.githubusercontent.com/andreacv98/service-broker-k8s/keycloak/documentation/openapi.yaml" target="blank">Open Service Broker API extended specification</a></li>
+                                        <li>Rest API servier compliant to the <a href="https://github.com/andreacv98/service-broker-k8s/blob/keycloak/documentation/spec.md" target="blank">Open Service Broker API extended specification</a> (<a href="https://github.com/andreacv98/service-broker-k8s/blob/keycloak/documentation/openapi.yaml" target="blank">OpenAPI Schema</a>)</li>
                                         <ul>
                                             <li>API security supporting <a href="https://openid.net/specs/openid-connect-core-1_0.html" target="blank">OpenID Connect specification</a></li>
                                             <li><a href="https://liqo.io/" target="blank">Liqo</a> support and integration</li>
@@ -164,9 +163,9 @@ function ServiceProviderForm(props) {
                                             <Card.Text>
                                                 <p>
                                                     We can provide you a ready-to-use catalog which meets all the requirements. Just follow the instructions in the <a href="
-                                                    https://github.com/andreacv98/service-broker-k8s/blob/master/README.md" target="_blank">README</a> file of the project.
+                                                    https://github.com/andreacv98/service-broker-k8s/blob/keycloak/README.md" target="_blank">README</a> file of the project.
                                                     <br/>
-                                                    Some examples can be found in the <a href="https://github.com/andreacv98/service-broker-k8s/tree/master/examples" target="_blank">example</a> folder of the project.
+                                                    Some examples can be found in the <a href="https://github.com/andreacv98/service-broker-k8s/tree/keycloak/examples" target="_blank">example</a> folder of the project.
                                                 </p>
                                             </Card.Text>
                                         </Card.Body>
@@ -227,50 +226,124 @@ function ServiceProviderForm(props) {
         return (
             <>
             <Container className="p-3">
-                <Alert variant="success">
-                    <Alert.Heading>Service Provider successfully registered!</Alert.Heading>
-                    <p>
-                        Service broker information recap:
-                        Name: {name} <br/>
-                        Description: {description} <br/>
-                        URL: {url} <br/>
-                    </p>
-                    <p>
-                        Please save the following credentials for the service broker:
-                    </p>
-                    <hr />
-                    <Form>
-                        <Form.Group className="m-3" controlId="formClientId">
-                            <Form.Label>Authority URL</Form.Label>
-                            <Form.Control type="text" placeholder="Enter client ID" value={credentials.authority_url} readOnly />
-                            <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.authority_url)} >Copy authority URL <BsFillClipboardFill /></Button>
-                        </Form.Group>
-                        <Form.Group className="m-3" controlId="formClientId">
-                            <Form.Label>Realm</Form.Label>
-                            <Form.Control type="text" placeholder="Enter client ID" value={credentials.realm} readOnly />
-                            <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.realm)} >Copy realm <BsFillClipboardFill /></Button>
-                        </Form.Group>
-                        <Form.Group className="m-3" controlId="formClientId">
-                            <Form.Label>Client ID</Form.Label>
-                            <Form.Control type="text" placeholder="Enter client ID" value={credentials.client_id} readOnly />
-                            <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.client_id)} >Copy client ID <BsFillClipboardFill /></Button>
-                        </Form.Group>
-                        <Form.Group className="m-3" controlId="formClientSecret">
-                            <Form.Label>Client Secret</Form.Label>
-                            <Form.Control type="text" placeholder="Enter client secret" value={credentials.client_secret} readOnly />
-                            <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.client_secret)} >Copy client secret <BsFillClipboardFill /></Button>
-                        </Form.Group>
-                    </Form>
-                    <Button className="m-3" href="/service-providers">
-                        Back to service providers list
-                    </Button>
+                <Row>
+                    <Col>
+                        <Alert variant="success">
+                            <Alert.Heading>Catalog successfully registered!</Alert.Heading>
+                            <p>
+                                Your catalog has been successfully registered in the marketplace!
+                                <br/>
+                                This is the recap of your catalog informations:
+                            </p>
+                            <Form>
+                                <Row>
+                                    <Col>
+                                        <Form.Group className="mb-3" controlId="Name">
+                                            <Form.Label>Name</Form.Label>
+                                            <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group className="mb-3" controlId="Url">
+                                            <Form.Label>URL</Form.Label>
+                                            <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <Form.Group className="mb-3" controlId="Description">
+                                            <Form.Label>Description</Form.Label>
+                                            <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>                      
+                            </Form>
+                        </Alert>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Card>
+                            <Card.Header>
+                                <Card.Title>Authentication server</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <Card.Text>
+                                    <p>
+                                        The marketplace will contact your protected catalog APIs with an access token issued by this OpenID Connect authentication server.
+                                        <br/>
+                                        <hr/>
+                                        <Form>
+                                            <Form.Group className="mb-3" controlId="Url">
+                                                <Form.Label>URL</Form.Label>
+                                                <Form.Control type="text" placeholder="Authentication server URL" value={credentials.authority_url+"/"+credentials.realm} readOnly disabled/>
+                                            </Form.Group>
+                                        </Form>
+                                    </p>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>                                
+                    </Col>
+                    <Col>
+                        <Card>
+                            <Card.Header>
+                                    <Card.Title>OpenID Connect server connection details</Card.Title>
+                            </Card.Header>
+                                <Card.Body>
+                                    <Card.Text>
+                                        <p>
+                                            The marketplace has issued a client ID and a client secret to be used to authenticate the catalog if your implementation needs it.
+                                            With these credentials you can get an access token as service account and use it to call user info protected APIs on the authentication server.
+                                        </p>
+                                        <Form>
+                                            <Row>
+                                                <Col>
+                                                    <Form.Group className="m-3" controlId="formAuthorityURL">
+                                                        <Form.Label>Authority URL</Form.Label>
+                                                        <Form.Control type="text" placeholder="Authority URL" value={credentials.authority_url} readOnly />
+                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.authority_url)} >Copy authority URL <BsFillClipboardFill /></Button>
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col>
+                                                    <Form.Group className="m-3" controlId="formRealm">
+                                                        <Form.Label>Realm</Form.Label>
+                                                        <Form.Control type="text" placeholder="Realm" value={credentials.realm} readOnly />
+                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.realm)} >Copy realm <BsFillClipboardFill /></Button>
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <Form.Group className="m-3" controlId="formClientId">
+                                                        <Form.Label>Client ID</Form.Label>
+                                                        <Form.Control type="text" placeholder="Client ID" value={credentials.client_id} readOnly />
+                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.client_id)} >Copy client ID <BsFillClipboardFill /></Button>
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col>
+                                                    <Form.Group className="m-3" controlId="formClientSecret">
+                                                        <Form.Label>Client Secret</Form.Label>
+                                                        <Form.Control type="text" placeholder="Client secret" value={credentials.client_secret} readOnly />
+                                                        <Button className="text-center mt-2" onClick={ () => navigator.clipboard.writeText(credentials.client_secret)} >Copy client secret <BsFillClipboardFill /></Button>
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>                                     
+                                        </Form>
+                                    </Card.Text>
+                                </Card.Body>
+                        </Card> 
+                    </Col>
+                </Row>           
                     <Button className="m-3" onClick={reset}>
-                        Register another service provider
+                        Register another catalog
                     </Button>
                     <Button className="m-3" onClick={handleTestSvcProvider} variant={ready ? "success" : "danger"}>
-                        Test service broker
+                        Test catalog connection
                     </Button>
-                </Alert>
+                    <Button className="m-3" href="/catalog">
+                        Go to catalog
+                    </Button>
             </Container>
             </>
         )
