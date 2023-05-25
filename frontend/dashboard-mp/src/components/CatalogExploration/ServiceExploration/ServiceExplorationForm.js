@@ -1,11 +1,10 @@
 import { Form, Button, Alert, Container, Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { getServices } from '../configs/marketplaceConfig';
 import { useAuth } from 'react-oidc-context';
 import { useEffect, useState } from 'react';
-import { subscribeService } from '../configs/marketplaceConfig';
+import { subscribeService, getServices } from '../../../configs/marketplaceConfig';
 import { CheckCircleFill, Cloud, House, InfoCircleFill, Shuffle, XCircleFill } from 'react-bootstrap-icons';
 
-function SubscribeServiceForm(props) {
+function ServiceExplorationForm(props) {
     const auth = useAuth();
     const setIsLoading = props.setIsLoading;
     const idServiceProvider = props.idServiceProvider;
@@ -212,4 +211,4 @@ function SubscribeServiceForm(props) {
     
 }
 
-export default SubscribeServiceForm;
+export default ServiceExplorationForm;

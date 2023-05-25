@@ -9,7 +9,7 @@ function ServiceCard (props) {
     const serviceTags = props.tags;
     const serviceProviderID = props.serviceProviderID;
 
-    const buyUrl = "/buyservice/"+serviceProviderID+"/"+id;
+    const exploreUrl = "/catalogs/"+serviceProviderID+"/"+id;
 
     return (
         <>
@@ -29,7 +29,7 @@ function ServiceCard (props) {
                         ))
                         }
                     </Card.Text>
-                    <Button variant="primary" href={buyUrl}>Explore</Button>
+                    <Button variant="primary" href={exploreUrl}>Explore</Button>
                 </Card.Body>
             </Card>
         </>

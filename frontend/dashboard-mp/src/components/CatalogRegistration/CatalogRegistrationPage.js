@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
-import { useAuth } from 'react-oidc-context';
-import SubscribeServiceForm from './SubscribeServiceForm';
+import { useAuth } from "react-oidc-context";
+import CatalogForms from "./CatalogForms";
+import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-function SubscribePage(props) {
-    const { idServiceProvider, idService } = useParams();
+function CatalogRegistrationPage(props) {
     const auth = useAuth();
     const [shouldRedirect, setShouldRedirect] = useState(false);
     const isLoading = props.isLoading;
@@ -33,7 +32,7 @@ function SubscribePage(props) {
         if (auth.isAuthenticated) {
             return (
                 <>
-                    <SubscribeServiceForm idServiceProvider={idServiceProvider} idService={idService} isLoading={isLoading} setIsLoading={setIsLoading}/>
+                    <CatalogForms isLoading={isLoading} setIsLoading={setIsLoading}/>
                 </>
             )
         } else {
@@ -42,4 +41,4 @@ function SubscribePage(props) {
     }
 }
 
-export default SubscribePage;
+export default CatalogRegistrationPage;

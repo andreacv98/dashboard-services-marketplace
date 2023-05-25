@@ -1,9 +1,10 @@
-import { useAuth } from "react-oidc-context";
-import ServiceProviderForm from "./ServiceProviderForm";
-import { Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
+import { useAuth } from 'react-oidc-context';
+import ServiceExplorationForm from './ServiceExplorationForm';
 
-function ServiceProviderRegistration(props) {
+function ServiceExplorationPage(props) {
+    const { idServiceProvider, idService } = useParams();
     const auth = useAuth();
     const [shouldRedirect, setShouldRedirect] = useState(false);
     const isLoading = props.isLoading;
@@ -32,7 +33,7 @@ function ServiceProviderRegistration(props) {
         if (auth.isAuthenticated) {
             return (
                 <>
-                    <ServiceProviderForm isLoading={isLoading} setIsLoading={setIsLoading}/>
+                    <ServiceExplorationForm idServiceProvider={idServiceProvider} idService={idService} isLoading={isLoading} setIsLoading={setIsLoading}/>
                 </>
             )
         } else {
@@ -41,4 +42,4 @@ function ServiceProviderRegistration(props) {
     }
 }
 
-export default ServiceProviderRegistration;
+export default ServiceExplorationPage;
