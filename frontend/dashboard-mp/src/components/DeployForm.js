@@ -546,7 +546,7 @@ function DeployForm(props) {
                         </BootstrapForm.Group>
                         <BootstrapForm.Group controlId="formServiceName" className="m-3">
                             <BootstrapForm.Label>Bindable service</BootstrapForm.Label>
-                            <p className={bindable ? "text-success" : "text-danger"}>{bindable ? <CheckCircleFill /> : <XCircleFill />} {bindable ? "The service will automatically be binded to the applications" : "Not automatic binding to the applications"}</p>
+                            <p className={bindable ? "text-success" : "text-danger"}>{bindable ? <CheckCircleFill /> : <XCircleFill />} {bindable ? "The service will be automatically binded to the applications" : "No automatic binding to the applications"}</p>
                             <BootstrapForm.Text className="text-muted">
                                 Capability of the service to be automatically binded to the applications on your cluster
                             </BootstrapForm.Text>
@@ -628,8 +628,9 @@ function DeployForm(props) {
                         </BootstrapForm.Text>
                     </BootstrapForm.Group>
                 </BootstrapForm>
+                <Button variant="outline-primary" onClick={() => setStep(0)} className="m-3">{"<"}</Button>
                 <Button variant="primary" onClick={handlePeering} className="m-3" disabled={peeringStatus || peeringStarted}>Peer</Button>
-                <Button variant="primary" onClick={() => setStep(2)} className="m-3" disabled={!peeringStatus}>Next</Button>
+                <Button variant="outline-primary" onClick={() => setStep(2)} className="m-3" disabled={!peeringStatus}>{">"}</Button>
             </>
             )
         case 2:
@@ -674,7 +675,7 @@ function DeployForm(props) {
                 <Container>
                     <Row>
                         <Col>
-                            <h4>Service isntance creation</h4>
+                            <h4>Service instance creation</h4>
                             <p>You will create the main components of the service you are implementing. This may take some time and may require some information to create the service instance. Please check below. Please note: the service may not be immediately operational if it also needs binding information.</p>
                         </Col>
                     </Row>
@@ -698,7 +699,8 @@ function DeployForm(props) {
                     transformErrors={transformErrors}
                     >                        
                     </Form>
-                    <Button variant="primary" onClick={() => setStep(4)} className="m-3" disabled={!bindingStatus}>Next</Button>
+                    <Button variant="outline-primary" onClick={() => setStep(0)} className="m-3">{"<"}</Button>
+                    <Button variant="primary" onClick={() => setStep(4)} className="m-3" disabled={!bindingStatus}>{">"}</Button>
                 </>
                     
             )

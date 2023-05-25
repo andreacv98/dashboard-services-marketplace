@@ -23,7 +23,7 @@ function Home(props) {
                                 <Card.Text>
                                     You are looking for the right service for your application inside your cluster? Just explore our catalog and find the right one for you!
                                 </Card.Text>
-                                <Button variant="primary" href="/catalog">Go to Catalogs</Button>
+                                <Button variant="primary" href="/catalog">Explore Catalogs</Button>
                             </Card.Body>
                         </Card>
                         <Card style={{ width: '25rem' }} className="m-3">
@@ -34,7 +34,7 @@ function Home(props) {
                                 <Card.Text>
                                     You want to offer your services to the community? Just register your catalog server and let the community know about them!
                                 </Card.Text>
-                                <Button variant="primary" href="/service-providers/register">Go to Catalog Registration</Button>
+                                <Button variant="primary" href="/service-providers/register">Register Catalog</Button>
                             </Card.Body>
                         </Card>
                     </Container>

@@ -196,7 +196,7 @@ function ServiceProviderForm(props) {
                 <hr />
                 <Row>
                     <Col>
-                        <h3>Catalog informations</h3>
+                        <h3>1/3 - Catalog informations</h3>
                     </Col>
                 </Row>
                 <Row>
@@ -240,7 +240,7 @@ function ServiceProviderForm(props) {
                 <Container className="p-3">
                     <Row>
                         <Col>
-                            <h2>Authentication configuration</h2>
+                            <h2>2/3 - Authentication configuration</h2>
                         </Col>
                     </Row>
                     <Row>
