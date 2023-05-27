@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Alert, Container } from "react-bootstrap";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -12,7 +11,7 @@ function CatalogRegistrationErrorBar(props) {
             console.log("error: " + error);
             toast(error
                 , {
-                    onChange: () => {
+                    onClose: () => {
                         setError("");
                     },
                     type: toast.TYPE.ERROR,

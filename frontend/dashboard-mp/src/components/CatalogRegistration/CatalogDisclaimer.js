@@ -1,4 +1,4 @@
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Collapse } from "react-bootstrap";
 import { Github } from "react-bootstrap-icons";
 
 function CatalogDisclaimer(props) {

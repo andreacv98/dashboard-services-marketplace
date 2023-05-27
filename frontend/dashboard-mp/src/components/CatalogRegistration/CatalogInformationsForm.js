@@ -1,6 +1,8 @@
 import { Row, Col, Button, Form, Container } from 'react-bootstrap';
 import { addServiceProvider } from '../../configs/marketplaceConfig';
 import { useAuth } from "react-oidc-context";
+import { useState } from 'react';
+import DisclaimerInfo from '../Utils/DisclaimerInfo';
 
 function CatalogInformationsForm(props) {
     const auth = useAuth();
@@ -14,6 +16,18 @@ function CatalogInformationsForm(props) {
     const setError = props.setError;
     const setIsLoading = props.setIsLoading;
     const setCredentials = props.setCredentials;
+    const registered = props.registered;
+    const setRegistered = props.setRegistered;
+
+    const generalInfo = (
+        <p>
+            In order to get your catalog registered, you need to provide some informations about it.
+            <br />
+            An <u>unique name</u>, a description about it and the URL where it is hosted.
+            <br />
+            <b>Please note:</b> once you proceed to the next step, you won't be able to change these informations.
+        </p>
+    )
 
     const sendRegistrationRequest = async () => {
         // Send HTTP request to backend
@@ -36,28 +50,33 @@ function CatalogInformationsForm(props) {
             setError("Please fill out all fields!");
         } else {
             setError("");
-            setIsLoading(true);
-            checkURL(url).then((error) => {
-                if (error === "") {
-                    console.log("Sending registration request...")
-                    sendRegistrationRequest().then((error) => {
-                        console.log("Registration request sent!")
-                        if (error !== "") {
-                            console.log("Error registering service provider! : " + error)
-                            setError(error);
-                        } else {
-                            console.log("Registration successful!")
-                            setStep(2);
-                        }
-                        setIsLoading(false);  
-                    });
-                } else {
-                    console.log("Error checking URL! : " + error)
-                    setError(error);
-                    setIsLoading(false);
-                }
-                console.log("Done checking URL!")                
-            });
+            if(!registered) {
+                setIsLoading(true);
+                checkURL(url).then((error) => {
+                    if (error === "") {
+                        console.log("Sending registration request...")
+                        sendRegistrationRequest().then((error) => {
+                            console.log("Registration request sent!")
+                            if (error !== "") {
+                                console.log("Error registering service provider! : " + error)
+                                setError(error);
+                            } else {
+                                console.log("Registration successful!")
+                                setRegistered(true);
+                                setStep(2);
+                            }
+                            setIsLoading(false);  
+                        });
+                    } else {
+                        console.log("Error checking URL! : " + error)
+                        setError(error);
+                        setIsLoading(false);
+                    }
+                    console.log("Done checking URL!")                
+                });
+            } else {
+                setStep(2);
+            }            
         }
     }
 
@@ -81,8 +100,15 @@ function CatalogInformationsForm(props) {
             </Row>
             <Row>
                 <Col>
-                    <Container className="p-3">
-                        <h2>1/3 - Catalog informations</h2>
+                    <Container>
+                        <h2>
+                            1/3 - Catalog informations
+                            <DisclaimerInfo
+                                className="m-2"
+                                disclaimerTitle="Catalog informations insertion"
+                                disclaimerText={generalInfo}
+                            />
+                        </h2>
                     </Container>
                 </Col>
             </Row>
@@ -90,6 +116,7 @@ function CatalogInformationsForm(props) {
                 <Col>
                 <Container className="p-3">
                     <Form>
+                        <fieldset disabled={registered}>
                         <Row>
                             <Col>
                                 <Form.Group className="mb-3" controlId="formName">
@@ -115,9 +142,10 @@ function CatalogInformationsForm(props) {
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Button variant="outline-primary" type="button" onClick={() => setStep(0)} className='me-3'>Back</Button>                     
-                        <Button variant="primary" type="submit" onClick={handleRegistration} className='me-3'>Next</Button>
+                        </fieldset>                        
                     </Form>
+                    <Button variant="outline-primary" type="button" onClick={() => setStep(0)} className='me-3'>Back</Button>                     
+                    <Button variant="primary" type="submit" onClick={handleRegistration} className='me-3'>Next</Button>
                 </Container>
                     
                 </Col>

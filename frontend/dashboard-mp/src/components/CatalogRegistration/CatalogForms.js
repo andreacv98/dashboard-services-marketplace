@@ -24,6 +24,7 @@ function CatalogForms(props) {
     const [defaultCommand, setDefaultCommand] = useState("");
     const [testedCatalog, setTestedCatalog] = useState(false);
     const [step, setStep] = useState(0);
+    const [registered, setRegistered] = useState(false);
 
     useEffect(() => {
         console.log("Is loading: " + props.isLoading)
@@ -93,6 +94,8 @@ function CatalogForms(props) {
                     url={url}
                     setUrl={setUrl}
                     setCredentials={setCredentials}
+                    registered={registered}
+                    setRegistered={setRegistered}
                     />
                 </>
                 
