@@ -102,7 +102,12 @@ function CatalogForms(props) {
                 <>
                     <CatalogRegistrationErrorBar error={error} setError={setError} />
 
-                    <CatalogAuthenticationBinding setStep={setStep} setError={setError}/>
+                    <CatalogAuthenticationBinding
+                    setStep={setStep}
+                    setError={setError}
+                    credentials={credentials}
+                    url={url}
+                    />
                 </>
                 
             )
