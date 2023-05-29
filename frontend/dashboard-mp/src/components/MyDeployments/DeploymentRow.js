@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { checkPeering, deployService, getServices } from "../configs/marketplaceConfig";
-import {Button} from 'react-bootstrap';
+import { checkPeering } from "../../configs/marketplaceConfig";
 import { useAuth } from "react-oidc-context";
 
 function DeploymentRow(props) {
@@ -16,12 +15,9 @@ function DeploymentRow(props) {
     const serviceBindingId = props.serviceBindingId;
     const serviceBindingOperation = props.serviceBindingOperation;
     const [serviceProviderName, setServiceProviderName] = useState("Loading...");
-    const error = props.error;
     const setError = props.setError;
     const catalogs = props.catalogs
     const serviceProviders = props.serviceProviders;
-    const isLoading = props.isLoading;
-    const setIsLoading = props.setIsLoading;
 
     const [namespace, setNamespace] = useState("Loading...")
 
@@ -48,7 +44,7 @@ function DeploymentRow(props) {
             setPlanName(planFound.name)
         }
         
-    }, [idService, idServiceProvider, catalogs])
+    }, [idService, idServiceProvider, catalogs, idPlan])
 
     useEffect(() => {
         if (peeringId !== undefined) {
@@ -57,7 +53,7 @@ function DeploymentRow(props) {
                 deploymentId,
                 auth.user?.access_token,
             ).then((response) => {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     response.json().then((data) => {
                         setNamespace(data.namespace)
                     })
@@ -66,7 +62,7 @@ function DeploymentRow(props) {
                 }
             })
         }
-    }, [peeringId, deploymentId, auth.user?.access_token])
+    }, [peeringId, deploymentId, auth.user?.access_token, setError])
 
     return (
         <tr>

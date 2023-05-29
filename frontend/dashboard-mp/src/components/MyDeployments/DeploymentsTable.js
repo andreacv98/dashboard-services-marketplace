@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button } from 'react-bootstrap';
-import { getServices, getServiceProviders } from '../configs/marketplaceConfig';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Table } from 'react-bootstrap';
+import { getServices, getServiceProviders } from '../../configs/marketplaceConfig';
 import DeploymentRow from './DeploymentRow';
 
 function DeploymentsTable(props) {
@@ -11,9 +11,9 @@ function DeploymentsTable(props) {
     const setError = props.setError;
 
     const [catalogs, setCatalogs] = useState(new Map())
-    const updateCatalog = (k,v) => {
+    const updateCatalog = useCallback((k,v) => {
         setCatalogs(new Map(catalogs.set(k,v)))
-    }
+    }, [catalogs])
 
     const [serviceProviders, setServiceProviders] = useState([])
 
@@ -27,7 +27,7 @@ function DeploymentsTable(props) {
                 })
                 .catch((error) => {
                     console.log("Error getting service providers from marketplace");
-                    setError("Error getting service providers from marketplace");
+                    setError("Error getting service providers from marketplace. " + error);
                 })
             } else {
                 console.log("Error getting service providers from marketplace");
@@ -36,9 +36,9 @@ function DeploymentsTable(props) {
         })
         .catch((error) => {
             console.log("Error getting service providers from marketplace");
-            setError("Error getting service providers from marketplace");
+            setError("Error getting service providers from marketplace. " + error);
         })
-    }, [])
+    }, [setError])
 
     useEffect(() => {
         // Retrive catalogs for each unique service provider of all subscribed service
@@ -58,7 +58,7 @@ function DeploymentsTable(props) {
                         })
                         .catch((error) => {
                             console.log("Error getting service providers from marketplace");
-                            setError("Error getting services from marketplace");
+                            setError("Error getting services from marketplace. " + error);
                         })
                     } else {
                         console.log("Error getting service providers from marketplace");
@@ -67,11 +67,11 @@ function DeploymentsTable(props) {
                 })
                 .catch((error) => {
                     console.log("Error getting service providers from marketplace");
-                    setError("Error getting services from marketplace");
+                    setError("Error getting services from marketplace. " + error);
                 })
             }
         });
-    }, [deployments])
+    }, [deployments, catalogs, setError, updateCatalog])
 
     return (
         <Table striped bordered hover>

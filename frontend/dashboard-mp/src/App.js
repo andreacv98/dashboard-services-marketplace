@@ -9,7 +9,7 @@ import { useState } from "react";
 import CatalogPage from "./components/CatalogExploration/CatalogPage";
 import SubscribedServicesPage from "./components/SubscribedServicesPage";
 import DeployPage from "./components/DeployPage";
-import DeploymentsPage from "./components/DeploymentsPage";
+import DeploymentsPage from "./components/MyDeployments/DeploymentsPage";
 import NotFoundPage from "./components/Utils/NotFoundPage";
 import ServiceExplorationPage from "./components/CatalogExploration/ServiceExploration/ServiceExplorationPage";
 import MyCatalogPage from "./components/MyCatalogs/MyCatalogsPage";
