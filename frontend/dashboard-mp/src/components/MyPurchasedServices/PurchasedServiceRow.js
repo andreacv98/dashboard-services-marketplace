@@ -1,26 +1,22 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { deployService, getServices } from "../configs/marketplaceConfig";
+import { deployService } from "../../configs/marketplaceConfig";
 import {Button} from 'react-bootstrap';
 import { useAuth } from "react-oidc-context";
 
-function SubscribedServiceRow(props) {
+function PurchasedServiceRow(props) {
     const auth = useAuth();
     const idService = props.idService;
     const idServiceProvider = props.idServiceProvider;
     const idPlan = props.idPlan;
-    const subscriptionId = props.subscriptionId;
     const serviceProviderName = props.serviceProviderName;
-    const error = props.error;
+    const createdAt = props.createdAt;
     const setError = props.setError;
     const catalogs = props.catalogs
-    const isLoading = props.isLoading;
     const setIsLoading = props.setIsLoading;
 
     const [serviceName, setServiceName] = useState("");
     const [planName, setPlanName] = useState("");
-
-    const deployURL = "/deploy/" + idServiceProvider + "/" + idService + "/" + idPlan
 
     useEffect(() => {
         let services = catalogs.get(idServiceProvider)
@@ -37,13 +33,13 @@ function SubscribedServiceRow(props) {
             setPlanName(planFound.name)
         }
         
-    }, [idService, idServiceProvider, catalogs])
+    }, [idService, idServiceProvider, catalogs, idPlan])
 
     const handleDeployment = () => {
         setIsLoading(true);
         // Deploy service through marketplace
         deployService(auth.user?.access_token, idServiceProvider, idService, idPlan).then((response) => {
-            if (response.status == 200) {
+            if (response.status === 200) {
                 response.json().then((data) => {
                     let deploymentId = data.deployment_id;
                     // Navigate to deployment page
@@ -61,9 +57,10 @@ function SubscribedServiceRow(props) {
             <td>{serviceName}</td>
             <td>{planName}</td>
             <td>{serviceProviderName}</td>
+            <td>{new Date(createdAt).toLocaleString()}</td>
             <td><Button variant="primary" onClick={handleDeployment}>Deploy</Button></td>
         </tr>
     )
 }
 
-export default SubscribedServiceRow;
+export default PurchasedServiceRow;

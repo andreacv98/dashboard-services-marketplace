@@ -1,6 +1,6 @@
 import { Form, Button, Alert, Container, Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { useAuth } from 'react-oidc-context';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { subscribeService, getServices } from '../../../configs/marketplaceConfig';
 import { CheckCircleFill, Cloud, House, InfoCircleFill, Shuffle, XCircleFill } from 'react-bootstrap-icons';
 
@@ -19,42 +19,7 @@ function ServiceExplorationForm(props) {
 
     const [created, setCreated] = useState(false);
 
-    useEffect(() => {
-        // Get service from marketplace
-        setIsLoading(true);
-        getServices(idServiceProvider).then((response) => {
-            if (response.status === 200) {
-                response.json().then((data) => {
-                    let services = data.services;
-                    let serviceFound = services.find(service => service.id === idService);
-                    setService(serviceFound);
-                    console.log(serviceFound);
-                    setIsLoading(false);
-                }).catch((error) => {
-                    console.log("Error getting service from marketplace: "+error);
-                    setError("Error getting service from marketplace");
-                    setIsLoading(false);
-                })
-            } else {
-                console.log("Error getting service from marketplace: "+error);
-                setError("Error getting service from marketplace");
-                setIsLoading(false);
-            }
-        })
-        .catch((error) => {
-            console.log("Error getting service from marketplace: "+error);
-            setError("Error getting service from marketplace");
-            setIsLoading(false);
-        })
-    }, [])
-
-    useEffect(() => {
-        if (service !== null) {
-            handlePlanSelection({target: {value: service.plans[0].id}});
-        }
-    }, [service])
-
-    const handlePlanSelection = (event) => {
+    const handlePlanSelection = useCallback((event) => {
         const selectedPlanId = event.target.value;
         if (selectedPlanId === "") {
             setPlanDescription("");
@@ -64,7 +29,7 @@ function ServiceExplorationForm(props) {
             setPlanDescription(selectedPlan.description);
             setPeeringPolicies(selectedPlan.peering_policies);
         }        
-    }
+    }, [service])
 
     const handleSubscription = (event) => {
         event.preventDefault();
@@ -89,6 +54,40 @@ function ServiceExplorationForm(props) {
             }
         })
     }
+
+    useEffect(() => {
+        // Get service from marketplace
+        setIsLoading(true);
+        getServices(idServiceProvider).then((response) => {
+            if (response.status === 200) {
+                response.json().then((data) => {
+                    let services = data.services;
+                    let serviceFound = services.find(service => service.id === idService);
+                    setService(serviceFound);
+                    setIsLoading(false);
+                }).catch((error) => {
+                    console.log("Error getting service from marketplace: "+error);
+                    setError("Error getting service from marketplace");
+                    setIsLoading(false);
+                })
+            } else {
+                console.log("Error getting service from marketplace: "+error);
+                setError("Error getting service from marketplace");
+                setIsLoading(false);
+            }
+        })
+        .catch((error) => {
+            console.log("Error getting service from marketplace: "+error);
+            setError("Error getting service from marketplace");
+            setIsLoading(false);
+        })
+    }, [idServiceProvider, idService, setIsLoading, error])
+
+    useEffect(() => {
+        if (service !== null) {
+            handlePlanSelection({target: {value: service.plans[0].id}});
+        }
+    }, [service, handlePlanSelection])
 
     const renderTooltip = (text) => (
         <Tooltip id="tooltip">{text}</Tooltip>
@@ -169,12 +168,12 @@ function ServiceExplorationForm(props) {
                     <Container>
                         <Row>
                             <Col>
-                                <Button classname="mr-3" variant="primary" href="/catalog">
+                                <Button className="mr-3" variant="primary" href="/catalog">
                                     Go Back
                                 </Button>
                             </Col>
                             <Col>
-                                <Button classname="mr-3" variant="primary" type="submit" onClick={handleSubscription}>
+                                <Button className="mr-3" variant="primary" type="submit" onClick={handleSubscription}>
                                     Buy
                                 </Button>
                             </Col>
@@ -201,7 +200,7 @@ function ServiceExplorationForm(props) {
                     <Alert.Heading>Successfully purchased the service</Alert.Heading>
                     <p>Service: {service?.name}</p>
                     <p>Plan: {service?.plans.find(plan => plan.id === planId)?.name}</p>
-                    <Button href="/subscriptions">Purchases list</Button>
+                    <Button href="/purchases">Purchases list</Button>
                 </Alert>
             </Container>
             

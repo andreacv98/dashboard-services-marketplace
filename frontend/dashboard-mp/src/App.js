@@ -7,7 +7,7 @@ import CatalogRegistrationPage from "./components/CatalogRegistration/CatalogReg
 import LoadingOverlay from 'react-loading-overlay-ts';
 import { useState } from "react";
 import CatalogPage from "./components/CatalogExploration/CatalogPage";
-import SubscribedServicesPage from "./components/SubscribedServicesPage";
+import PurchasedServicesPage from "./components/MyPurchasedServices/PurchasedServicesPage";
 import DeployPage from "./components/DeployPage";
 import DeploymentsPage from "./components/MyDeployments/DeploymentsPage";
 import NotFoundPage from "./components/Utils/NotFoundPage";
@@ -37,7 +37,7 @@ function App() {
             <Route path="/catalogs/register" element={<CatalogRegistrationPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/catalogs" element={<CatalogPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="/catalogs/:idServiceProvider/:idService" element={<ServiceExplorationPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
-            <Route path="/purchases" element={<SubscribedServicesPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+            <Route path="/purchases" element={<PurchasedServicesPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/deployments/:idDeployment" element={<DeployPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="/deployments/" element={<DeploymentsPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="*" element={<NotFoundPage />} />
