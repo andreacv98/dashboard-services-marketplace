@@ -16,6 +16,7 @@ function CatalogForms(props) {
     const [error, setError] = useState("");
     const [ready, setReady] = useState(false);
     const [credentials, setCredentials] = useState({
+        id: "",
         authority_url: "",
         realm: "",
         client_id: "",
@@ -116,7 +117,17 @@ function CatalogForms(props) {
             )
         case 3:
             return (
-                <CatalogRecap setStep={setStep} />
+                <>
+                    <CatalogRegistrationErrorBar error={error} setError={setError} />
+                    
+                    <CatalogRecap
+                        setStep={setStep}
+                        setError={setError}
+                        url={url}
+                        id={credentials.id}
+                    /> 
+                </>
+                
             )
         default:
             return (

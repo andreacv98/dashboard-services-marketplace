@@ -20,6 +20,7 @@ function TopBar (props) {
                   <>
                     <Nav.Link href="/purchases">My purchases</Nav.Link>
                     <Nav.Link href="/deployments">My deployments</Nav.Link>
+                    <Nav.Link href="/profile/catalogs">My catalogs</Nav.Link>
                   </>
                 ) : (
                   <></>

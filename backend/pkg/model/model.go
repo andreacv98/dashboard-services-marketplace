@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 // AddServiceProviderRequest is the request to add a new service provider
 type AddServiceProviderRequest struct {
 	// Service provider name
@@ -12,6 +14,8 @@ type AddServiceProviderRequest struct {
 
 // AddServiceProviderResponse is the response to add a new service provider
 type AddServiceProviderResponse struct {
+	// ID of the service provider
+	Id string `json:"id,omitempty"`
 	// Authority URL
 	AuthorityURL string `json:"authority_url,omitempty"`
 	// Realm name
@@ -32,6 +36,8 @@ type ServiceProviderResponse struct {
 	Description string `json:"description,omitempty"`
 	// Service provider URL
 	URL string `json:"url,omitempty"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
 // Service providers list response is the response to retrieve all service providers
@@ -58,6 +64,10 @@ type Subscription struct {
 	PlanId string `json:"plan_id,omitempty"`
 	// Plan name
 	PlanName string `json:"plan_name,omitempty"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
 // SubscriptionListResponse is the response to retrieve all subscriptions
@@ -211,4 +221,8 @@ type RetrieveDeploymentResponse struct {
 	ServiceBindingId string `json:"service_binding_id,omitempty"`
 	// Service binding operation
 	ServiceBindingOperation string `json:"service_binding_operation,omitempty"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }

@@ -30,6 +30,7 @@ func main() {
 	router.Use(controller.CORSMiddleware())
 
 	router.GET("/service-providers", controller.GetServiceProviders)
+	router.GET("/service-providers/mine", ginkeycloak.Auth(ginkeycloak.AuthCheck(), *utils.GinKeycloakConfig), controller.GetUserServiceProvider)
 	router.POST("/service-providers", ginkeycloak.Auth(ginkeycloak.AuthCheck(), *utils.GinKeycloakConfig), controller.AddServiceProvider)
 	router.GET("/service-providers/:id/services", controller.GetServices)
 	router.POST("/service-providers/:idSvcPrv/services/:idSvc/plans/:idPlan/subscribe", ginkeycloak.Auth(ginkeycloak.AuthCheck(), *utils.GinKeycloakConfig), controller.SubscribeService)

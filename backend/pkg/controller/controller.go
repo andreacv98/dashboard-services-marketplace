@@ -53,6 +53,58 @@ func GetServiceProviders(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+func GetUserServiceProvider(c *gin.Context) {
+	// Get userid from bearer tokenString
+	// Get tokenString from authorization header
+	tokenString := strings.Split(c.GetHeader("Authorization"), "Bearer ")[1]
+	// Get userid from token
+	ctx := context.Background()
+	client := *(utils.ClientKeycloakConfig.Client)
+	// Wait for 1 second
+	time.Sleep(1 * time.Second)
+	_, claims, err := client.DecodeAccessToken(ctx, tokenString, utils.ClientKeycloakConfig.Realm)
+	if err != nil {
+		utils.Logger.Error("Error while decoding access token", err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	userID := (*claims)["sub"].(string)
+
+	// Query to get all service providers from database
+	query := "SELECT id, name, description, url, created_at FROM service_providers WHERE userid = $1"
+	// Execute query
+	rows, err := utils.DbConfig.Db.Query(query, userID)
+	if err != nil {
+		utils.Logger.Error("Error while executing query", err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	// Create service providers list
+	serviceProviders := []model.ServiceProviderResponse{}
+	// Iterate over rows
+	for rows.Next() {
+		// Create service provider
+		serviceProvider := model.ServiceProviderResponse{}
+		// Scan row
+		err = rows.Scan(&serviceProvider.Id, &serviceProvider.Name, &serviceProvider.Description, &serviceProvider.URL, &serviceProvider.CreatedAt)
+		if err != nil {
+			utils.Logger.Error("Error while scanning row", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		// Add service provider to list
+		serviceProviders = append(serviceProviders, serviceProvider)
+	}
+	// Create response
+	response := model.ServiceProvidersListResponse{
+		ServiceProviders: serviceProviders,
+	}
+	// Return response
+	c.JSON(200, response)
+}
+
 func AddServiceProvider(c *gin.Context) {
 	// Parse request body
 	var serviceProvider = model.AddServiceProviderRequest{}
@@ -176,9 +228,10 @@ func AddServiceProvider(c *gin.Context) {
 	utils.Logger.Info("Service broker client secret", *(svcClientCredentials.Value))
 
 	// Query to add service provider to database
-	query := "INSERT INTO service_providers (name, description, url, userid, idofclient, clientid, clientsecret) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+	query := "INSERT INTO service_providers (name, description, url, userid, idofclient, clientid, clientsecret) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
+	var id int
 	// Execute query
-	_, err = utils.DbConfig.Db.Exec(query, serviceProvider.Name, serviceProvider.Description, serviceProvider.URL, userID, idOfClient, clientId, *(svcClientCredentials.Value))
+	err = utils.DbConfig.Db.QueryRow(query, serviceProvider.Name, serviceProvider.Description, serviceProvider.URL, userID, idOfClient, clientId, *(svcClientCredentials.Value)).Scan(&id)
 	if err != nil {
 		utils.Logger.Error("Error while executing query", err)
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -186,6 +239,7 @@ func AddServiceProvider(c *gin.Context) {
 	}
 	// Return response
 	c.JSON(200, model.AddServiceProviderResponse{
+		Id: strconv.Itoa(id),
 		AuthorityURL: utils.ClientKeycloakConfig.KeycloakURL,
 		Realm:        utils.ClientKeycloakConfig.Realm,
 		ClientID:     clientId,
@@ -427,7 +481,7 @@ func GetSubscriptions(c *gin.Context) {
 	userID := (*claims)["sub"].(string)
 
 	// Retrieve subscriptions from db
-	query := "SELECT service_subscriptions.id, service_subscriptions.serviceproviderid, service_providers.name, service_providers.url, service_subscriptions.serviceid, service_subscriptions.planid FROM service_subscriptions, service_providers WHERE service_subscriptions.userid = $1 AND service_providers.id = service_subscriptions.serviceproviderid"
+	query := "SELECT service_subscriptions.id, service_subscriptions.serviceproviderid, service_providers.name, service_providers.url, service_subscriptions.serviceid, service_subscriptions.planid, service_subscriptions.created_at, service_subscriptions.updated_at FROM service_subscriptions, service_providers WHERE service_subscriptions.userid = $1 AND service_providers.id = service_subscriptions.serviceproviderid"
 	// Execute query
 	rows, err := utils.DbConfig.Db.Query(query, userID)
 	if err != nil {
@@ -441,7 +495,7 @@ func GetSubscriptions(c *gin.Context) {
 	var subscriptions []model.Subscription
 	for rows.Next() {
 		var subscription model.Subscription
-		err := rows.Scan(&subscription.Id, &subscription.ServiceProviderId, &subscription.ServiceProviderName, &subscription.ServiceProviderURL, &subscription.ServiceId, &subscription.PlanId)
+		err := rows.Scan(&subscription.Id, &subscription.ServiceProviderId, &subscription.ServiceProviderName, &subscription.ServiceProviderURL, &subscription.ServiceId, &subscription.PlanId, &subscription.CreatedAt, &subscription.UpdatedAt)
 		if err != nil {
 			utils.Logger.Error("Error while scanning row", err)
 			c.JSON(500, gin.H{"error": err.Error()})
@@ -554,7 +608,7 @@ func GetDeploymentsHandler(c *gin.Context) {
 	userID := (*claims)["sub"].(string)
 
 	// Get deployments from db of the user
-	query := "SELECT id, service_id, plan_id, service_provider_id, peering_id, service_instance_request_id, service_binding_request_id FROM deployments WHERE user_id = $1"
+	query := "SELECT id, service_id, plan_id, service_provider_id, peering_id, service_instance_request_id, service_binding_request_id, created_at, updated_at FROM deployments WHERE user_id = $1"
 	// Execute query
 	// Execute and scan rows
 	rows, err := utils.DbConfig.Db.Query(query, userID)
@@ -574,7 +628,9 @@ func GetDeploymentsHandler(c *gin.Context) {
 		var peeringId sql.NullInt32
 		var serviceInstanceRequestId sql.NullInt32
 		var serviceBindingRequestId sql.NullInt32
-		err = rows.Scan(&deploymentId, &serviceId, &planId, &serviceProviderId, &peeringId, &serviceInstanceRequestId, &serviceBindingRequestId)
+		var createdAt time.Time
+		var updatedAt time.Time
+		err = rows.Scan(&deploymentId, &serviceId, &planId, &serviceProviderId, &peeringId, &serviceInstanceRequestId, &serviceBindingRequestId, &createdAt, &updatedAt)
 		if err != nil {
 			utils.Logger.Error("Error while scanning rows", err)
 			c.JSON(500, gin.H{"error": err.Error()})
@@ -587,6 +643,8 @@ func GetDeploymentsHandler(c *gin.Context) {
 			ServiceId: serviceId,
 			PlanId: planId,
 			ServiceProviderId: strconv.Itoa(serviceProviderId),
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
 		}
 		
 		// Check if peering id is valid

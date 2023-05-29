@@ -39,6 +39,17 @@ export async function getServices (id) {
     return response;
 }
 
+export async function getMyServiceProviders(userToken) {
+    const response = await fetch(`${marketplace.URL}/service-providers/mine`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + userToken
+        }
+    });
+    return response;
+}
+
 export async function subscribeService(serviceProviderId, serviceId, planId, userToken) {
     const response = await fetch(`${marketplace.URL}/service-providers/${serviceProviderId}/services/${serviceId}/plans/${planId}/subscribe`, {
         method: 'POST',

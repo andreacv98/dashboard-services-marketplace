@@ -12,6 +12,7 @@ import DeployPage from "./components/DeployPage";
 import DeploymentsPage from "./components/DeploymentsPage";
 import NotFoundPage from "./components/Utils/NotFoundPage";
 import ServiceExplorationPage from "./components/CatalogExploration/ServiceExploration/ServiceExplorationPage";
+import MyCatalogPage from "./components/MyCatalogs/MyCatalogsPage";
 
 function App() {
 
@@ -32,6 +33,7 @@ function App() {
           <Routes>
             <Route index element={<Home isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="/profile" element= {<Profile isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+            <Route path="/profile/catalogs" element={<MyCatalogPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/catalogs/register" element={<CatalogRegistrationPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/catalogs" element={<CatalogPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="/catalogs/:idServiceProvider/:idService" element={<ServiceExplorationPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
