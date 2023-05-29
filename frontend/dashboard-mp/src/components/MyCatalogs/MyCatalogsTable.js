@@ -3,8 +3,6 @@ import MyCatalogRow from './MyCatalogRow';
 
 function SubscribedServicesTable(props) {
     const myCatalogs = props.myCatalogs;
-    const isLoading = props.isLoading;
-    const setIsLoading = props.setIsLoading;
     const error = props.error;
     const setError = props.setError;
 
@@ -27,6 +25,8 @@ function SubscribedServicesTable(props) {
                         description={myCatalog.description}
                         url={myCatalog.url}
                         createdAt={myCatalog.created_at}
+                        error={error}
+                        setError={setError}
                     />
                 ))}
             </tbody>

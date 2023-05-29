@@ -25,7 +25,7 @@ function MyCatalogsPage (props) {
         } else {
             if (auth.isAuthenticated) {
                 // Get subscribed services from marketplace
-                getMyServiceProviders(auth.user.access_token).then((response) => {
+                getMyServiceProviders(auth.user?.access_token).then((response) => {
                     if (response.status === 200) {
                         response.json().then((data) => {
                             if (data.service_providers === undefined) {
@@ -52,7 +52,7 @@ function MyCatalogsPage (props) {
                 })
             }
         }
-    }, [auth.isLoading, setIsLoading])
+    }, [auth.isLoading, setIsLoading, auth.isAuthenticated, auth.user?.access_token])
 
     if (!auth.isLoading && shouldRedirect) {
         return <Navigate to="/" />;
@@ -78,8 +78,7 @@ function MyCatalogsPage (props) {
                             {error}
                         </Alert>
                     </Row>
-                </Container>
-                
+                </Container>                
             )
         } else {
             auth.signinRedirect()

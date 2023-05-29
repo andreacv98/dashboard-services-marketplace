@@ -1,18 +1,17 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { deployService, getServices } from "../../configs/marketplaceConfig";
 import {Button, Container, Form, Modal, Spinner} from 'react-bootstrap';
 import { useAuth } from "react-oidc-context";
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import { checkServiceBrokerReadiness } from "../../utils/utils";
 
 function MyCatalogRow(props) {
-    const auth = useAuth();
-    const id = props.id;
     const createdAt = props.createdAt;
     const name = props.name;
     const description = props.description;
     const url = props.url;
+    const error = props.error;
+    const setError = props.setError;
 
     const [isReachable, setIsReachable] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
@@ -25,6 +24,7 @@ function MyCatalogRow(props) {
             setIsConnecting(false);
         }).catch((err) => {
             setIsReachable(false);
+            setError("Error checking service broker at "+url+": "+err);
             setIsConnecting(false);
         })
     }, [])
@@ -52,7 +52,7 @@ function MyCatalogRow(props) {
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="CreatedAt">
                                 <Form.Label>Created at</Form.Label>
-                                <Form.Control type="text" placeholder="Catalog created at" value={new Date(props.createdAt).toLocaleString()} readOnly disabled/>
+                                <Form.Control type="text" placeholder="Catalog created at" value={new Date(createdAt).toLocaleString()} readOnly disabled/>
                             </Form.Group>
                         </Form>
                     </>
