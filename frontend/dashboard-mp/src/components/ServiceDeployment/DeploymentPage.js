@@ -3,9 +3,9 @@ import { Navigate, useParams } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import { Alert, Col, Row } from "react-bootstrap";
 import { Container } from "react-bootstrap";
-import DeployForm from "./DeployForm";
+import DeploymentFlow from "./DeploymentFlow";
 import DeployStatusSummary from "./DeployStatusSummary";
-import { getDeployment } from "../configs/marketplaceConfig";
+import { getDeployment } from "../../configs/marketplaceConfig";
 
 function DeployPage(props) {
     const auth = useAuth();
@@ -103,7 +103,7 @@ function DeployPage(props) {
                             (
                                 <>
                                 <Col>
-                                    <DeployForm
+                                    <DeploymentFlow
                                     idDeployment={idDeployment}
                                     idServiceProvider={idServiceProvider}
                                     idService={idService}

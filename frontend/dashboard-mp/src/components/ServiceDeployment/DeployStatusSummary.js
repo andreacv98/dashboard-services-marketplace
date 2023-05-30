@@ -45,18 +45,18 @@ function DeployStatusSummary(props) {
                         instanceStatus ? (
                             <div className="d-flex align-items-center">
                                 <span className="m-2 text-success">&#10004;</span>
-                                <span>Instance created</span>
+                                <span>Service created</span>
                             </div>
                         ) : (
                             <div className="d-flex align-items-center">
                                 <Spinner animation="border" variant="primary" size="sm" />
-                                <span className="m-2">Creating instance</span>
+                                <span className="m-2">Service creating</span>
                             </div>
                         )
                         : (
                             <div className="d-flex align-items-center">
                                 <Spinner animation="grow" variant="primary" size="sm" />
-                                <span className="m-2">Waiting to start instance creation</span>
+                                <span className="m-2">Waiting to create service</span>
                             </div>
                         )}
                 </Col>
@@ -78,7 +78,7 @@ function DeployStatusSummary(props) {
                         : (
                             <div className="d-flex align-items-center">
                                 <Spinner animation="grow" variant="primary" size="sm" />
-                                <span className="m-2">Waiting to start binding creation</span>
+                                <span className="m-2">Waiting to bind</span>
                             </div>
                         )
                     }                            

@@ -8,7 +8,7 @@ import LoadingOverlay from 'react-loading-overlay-ts';
 import { useState } from "react";
 import CatalogPage from "./components/CatalogExploration/CatalogPage";
 import PurchasedServicesPage from "./components/MyPurchasedServices/PurchasedServicesPage";
-import DeployPage from "./components/DeployPage";
+import DeploymentPage from "./components/ServiceDeployment/DeploymentPage";
 import DeploymentsPage from "./components/MyDeployments/DeploymentsPage";
 import NotFoundPage from "./components/Utils/NotFoundPage";
 import ServiceExplorationPage from "./components/CatalogExploration/ServiceExploration/ServiceExplorationPage";
@@ -18,13 +18,14 @@ function App() {
 
   // Loading state
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("Loading");
 
   return (
     <>
       <LoadingOverlay
       active={isLoading}
       spinner
-      text='Loading'
+      text={loadingText}
       // React bootstrap class to occupy all the screen
       className="vh-100"
       >              
@@ -38,7 +39,7 @@ function App() {
             <Route path="/catalogs" element={<CatalogPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="/catalogs/:idServiceProvider/:idService" element={<ServiceExplorationPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
             <Route path="/purchases" element={<PurchasedServicesPage isLoading={isLoading} setIsLoading={setIsLoading}/>} />
-            <Route path="/deployments/:idDeployment" element={<DeployPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
+            <Route path="/deployments/:idDeployment" element={<DeploymentPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="/deployments/" element={<DeploymentsPage isLoading={isLoading} setIsLoading={setIsLoading} />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
