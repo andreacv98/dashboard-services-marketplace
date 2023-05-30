@@ -168,7 +168,7 @@ function ServiceExplorationForm(props) {
                     <Container>
                         <Row>
                             <Col>
-                                <Button className="mr-3" variant="primary" href="/catalog">
+                                <Button className="mr-3" variant="outline-primary" href="/catalog">
                                     Go Back
                                 </Button>
                             </Col>
@@ -179,9 +179,6 @@ function ServiceExplorationForm(props) {
                             </Col>
                         </Row>
                     </Container>
-                    
-                    
-                       
                 <Alert variant="danger" show={error !== ""} onClose={() => setError("")} dismissible>
                     <Alert.Heading>Error</Alert.Heading>
                     <p>{error}</p>
@@ -198,9 +195,20 @@ function ServiceExplorationForm(props) {
                 </Alert>
                 <Alert variant="success" show={created}>
                     <Alert.Heading>Successfully purchased the service</Alert.Heading>
-                    <p>Service: {service?.name}</p>
-                    <p>Plan: {service?.plans.find(plan => plan.id === planId)?.name}</p>
-                    <Button href="/purchases">Purchases list</Button>
+                    <Container>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="serviceName">
+                                <Form.Label>Service name</Form.Label>
+                                <Form.Control type="text" placeholder="Service name" value={service?.name} readOnly disabled/>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="planName">
+                                <Form.Label>Plan name</Form.Label>
+                                <Form.Control type="text" placeholder="Plan name" value={service?.plans.find(plan => plan.id === planId)?.name} readOnly disabled/>
+                            </Form.Group>
+                        </Form>
+                        <Button href="/catalogs" variant="outline-primary" className="m-3">Go back to catalogs</Button>
+                        <Button href="/purchases" className="m-3">Purchases list</Button>
+                    </Container>
                 </Alert>
             </Container>
             

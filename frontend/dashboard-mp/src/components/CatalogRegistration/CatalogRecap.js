@@ -1,4 +1,4 @@
-import { Col, Row, Container, Button, Card, Form, Alert } from "react-bootstrap";
+import { Col, Row, Container, Button, Card, Form, Alert, Accordion } from "react-bootstrap";
 import CheckConnectionModal from "./CheckConnectionModal";
 import { useEffect, useState } from "react";
 import { checkServiceBrokerReadiness } from "../../utils/utils";
@@ -31,32 +31,37 @@ function CatalogRecap(props) {
                         <Alert.Heading>All test passed, your catalog has been successfully registered!</Alert.Heading>
                         Your catalog has been successfully registered, now your services are exposed into the marketplace.
                     </Alert>
-                    <hr />
-                    Here's a recap of the information you provided:
-                    <Form>
-                        <Row>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="Name">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="Url">
-                                    <Form.Label>URL</Form.Label>
-                                    <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="Description">
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
-                                </Form.Group>
-                            </Col>
-                        </Row>                      
-                    </Form>
+                        <Accordion>
+                            <Accordion.Item eventKey="0">
+                                <Accordion.Header>Catalog information provided summary</Accordion.Header>
+                                <Accordion.Body>
+                                    <Form>
+                                        <Row>
+                                            <Col>
+                                                <Form.Group className="mb-3" controlId="Name">
+                                                    <Form.Label>Name</Form.Label>
+                                                    <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col>
+                                                <Form.Group className="mb-3" controlId="Url">
+                                                    <Form.Label>URL</Form.Label>
+                                                    <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <Form.Group className="mb-3" controlId="Description">
+                                                    <Form.Label>Description</Form.Label>
+                                                    <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>                      
+                                    </Form>
+                                </Accordion.Body>
+                            </Accordion.Item>
+                        </Accordion>
                 </Card.Text>
             </Card.Body>
             <Card.Footer>
@@ -78,32 +83,37 @@ function CatalogRecap(props) {
                         <Alert.Heading>Some tests failed, your catalog may not be reachable</Alert.Heading>
                         Some test may have failed, please check the information you provided and try again.
                     </Alert>
-                    <hr />
-                    Here's a recap of the information you provided:
-                    <Form>
-                        <Row>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="Name">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="Url">
-                                    <Form.Label>URL</Form.Label>
-                                    <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="Description">
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
-                                </Form.Group>
-                            </Col>
-                        </Row>                      
-                    </Form>
+                    <Accordion>
+                        <Accordion.Item eventKey="0">
+                            <Accordion.Header>Catalog information provided summary</Accordion.Header>
+                            <Accordion.Body>
+                                <Form>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group className="mb-3" controlId="Name">
+                                                <Form.Label>Name</Form.Label>
+                                                <Form.Control type="text" placeholder="Catalog name" value={name} readOnly disabled/>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col>
+                                            <Form.Group className="mb-3" controlId="Url">
+                                                <Form.Label>URL</Form.Label>
+                                                <Form.Control type="text" placeholder="Catalog URL" value={url} readOnly disabled/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group className="mb-3" controlId="Description">
+                                                <Form.Label>Description</Form.Label>
+                                                <Form.Control as="textarea" placeholder="Catalog description" value={description} readOnly disabled/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>                      
+                                </Form>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
                 </Card.Text>
             </Card.Body>
             <Card.Footer>
@@ -202,7 +212,7 @@ function CatalogRecap(props) {
                 setError("Service connection return an error. "+error);
             });
         }
-    }, [startTestsSuite])
+    }, [startTestsSuite, id, url])
 
     return (
         <>
