@@ -1,7 +1,7 @@
 import { Form, Button, Alert, Container, Row, Col, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { useAuth } from 'react-oidc-context';
 import { useCallback, useEffect, useState } from 'react';
-import { subscribeService, getServices } from '../../../configs/marketplaceConfig';
+import { subscribeService, getServices, deployService } from '../../../configs/marketplaceConfig';
 import { CheckCircleFill, Cloud, House, InfoCircleFill, Shuffle, XCircleFill } from 'react-bootstrap-icons';
 
 function ServiceExplorationForm(props) {
@@ -50,6 +50,23 @@ function ServiceExplorationForm(props) {
             } else {
                 console.log("Error subscribing service");
                 setError("Error subscribing service");
+                setIsLoading(false);
+            }
+        })
+    }
+
+    const handleDeployment = () => {
+        setIsLoading(true);
+        // Deploy service through marketplace
+        deployService(auth.user?.access_token, idServiceProvider, idService, planId).then((response) => {
+            if (response.status === 200) {
+                response.json().then((data) => {
+                    let deploymentId = data.deployment_id;
+                    // Navigate to deployment page
+                    window.location.href = "/deployments/" + deploymentId;
+                })
+            } else {
+                setError("Error deploying service: "+response.message);
                 setIsLoading(false);
             }
         })
@@ -208,6 +225,7 @@ function ServiceExplorationForm(props) {
                         </Form>
                         <Button href="/catalogs" variant="outline-primary" className="m-3">Go back to catalogs</Button>
                         <Button href="/purchases" className="m-3">Purchases list</Button>
+                        <Button onClick={handleDeployment} className="m-3">Deploy service</Button>
                     </Container>
                 </Alert>
             </Container>
