@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { checkPeering } from "../../configs/marketplaceConfig";
 import { useAuth } from "react-oidc-context";
+import { Button, Container, Modal } from "react-bootstrap";
+import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 
 function DeploymentRow(props) {
     const auth = useAuth();
@@ -18,8 +20,10 @@ function DeploymentRow(props) {
     const setError = props.setError;
     const catalogs = props.catalogs
     const serviceProviders = props.serviceProviders;
+    const createdAt = props.createdAt;
 
     const [namespace, setNamespace] = useState("Loading...")
+    const [showDetails, setShowDetails] = useState(false)
 
     const [serviceName, setServiceName] = useState("");
     const [planName, setPlanName] = useState("");
@@ -65,6 +69,7 @@ function DeploymentRow(props) {
     }, [peeringId, deploymentId, auth.user?.access_token, setError])
 
     return (
+        <>
         <tr>
             <td>{serviceName}</td>
             <td>{planName}</td>
@@ -72,9 +77,9 @@ function DeploymentRow(props) {
             <td>
                 { 
                     peeringId !== undefined ? (
-                        <p className=".text-success">Peered in namespace: {namespace}</p>
+                        <Container className="text-success"><CheckCircleFill /></Container>
                     ) : (
-                        <p className=".text-warning">Not peered yet</p>
+                        <Container className="text-danger"><XCircleFill /></Container>
                     )
                 }
             </td>
@@ -84,10 +89,10 @@ function DeploymentRow(props) {
                         serviceInstanceOperation !== undefined ? (
                             <p className=".text-info">Service instance in progress</p>
                         ) : (
-                            <p className=".text-success">Service instance created with id: {serviceInstanceId}</p>
+                            <Container className="text-success"><CheckCircleFill /></Container>
                         )
                     ) : (
-                        <p className=".text-warning">No service instance</p>
+                        <Container className="text-danger"><XCircleFill /></Container>
                     )
                 }
             </td>
@@ -97,14 +102,46 @@ function DeploymentRow(props) {
                         serviceBindingOperation !== undefined ? (
                             <p className=".text-info">Service binding in progress</p>
                         ) : (
-                            <p className=".text-success">Service binding created with id: {serviceInstanceId}</p>
+                            <Container className="text-success"><CheckCircleFill /></Container>
                         )
                     ) : (
-                        <p className=".text-warning">No service binding</p>
+                        <Container className="text-danger"><XCircleFill /></Container>
                     )
                 }
             </td>
+            <td>{new Date(createdAt).toLocaleString()}</td>
+            <td>
+                <Button onClick={() => setShowDetails(true)}>
+                    Details
+                </Button>
+            </td>
         </tr>
+        <Modal show={showDetails} onHide={() => setShowDetails(false)}>
+            <Modal.Header closeButton>
+                <Modal.Title>Deployment details</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p><b>Service name:</b> {serviceName}</p>
+                <p><b>Plan name:</b> {planName}</p>
+                <p><b>Offered by:</b> {serviceProviderName}</p>
+                {
+                    peeringId !== undefined ? (
+                        <p><b>Deployed into namespace:</b> {namespace}</p>
+                    ) : (
+                        <p><b>No peering established yet</b></p>
+                    )
+                }
+                {
+                    serviceInstanceId !== undefined ? (
+                        <p><b>Service deployment named:</b> {serviceInstanceId}</p>
+                    ) : (
+                        <p><b>Service not instantiated yet</b></p>
+                    )
+                }
+            </Modal.Body>
+        </Modal>
+        </>
+        
     )
 }
 

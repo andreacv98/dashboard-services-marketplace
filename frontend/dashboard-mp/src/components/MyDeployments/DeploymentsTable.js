@@ -79,10 +79,12 @@ function DeploymentsTable(props) {
                 <tr>
                     <th>Service Name</th>
                     <th>Plan Name</th>
-                    <th>Service Provider</th>
-                    <th>Peering namespace</th>
-                    <th>Service Instance Name</th>
-                    <th>Service Binding Name</th>
+                    <th>Catalog</th>
+                    <th>Peering</th>
+                    <th>Service created</th>
+                    <th>Service binded</th>
+                    <th>Operation date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -99,6 +101,7 @@ function DeploymentsTable(props) {
                         serviceInstanceOperation={deployment.service_instance_operation}
                         serviceBindingId={deployment.service_binding_id}
                         serviceBindingOperation={deployment.service_binding_operation}
+                        createdAt={deployment.created_at}
                         error={error}
                         setError={setError}
                         catalogs={catalogs}

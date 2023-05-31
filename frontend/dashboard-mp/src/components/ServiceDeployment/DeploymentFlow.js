@@ -36,7 +36,9 @@ function DeploymentFlow(props) {
     const setBindingStarted = props.setBindingStarted;
 
     const [serviceName, setServiceName] = useState("");
+    const [serviceDescription, setServiceDescription] = useState("");
     const [planName, setPlanName] = useState("");
+    const [planDescription, setPlanDescription] = useState("");
     const [bindable, setBindable] = useState(false);
     const [parameters, setParameters] = useState({});
     const [parametersBinding, setParametersBinding] = useState({});
@@ -136,7 +138,9 @@ function DeploymentFlow(props) {
                 let planFound = serviceFound.plans.find(plan => plan.id === idPlan);
 
                 setServiceName(serviceFound.name)
+                setServiceDescription(serviceFound.description)
                 setPlanName(planFound.name)
+                setPlanDescription(planFound.description)
                 setPeeringPolicies(planFound.peering_policies)
                 // TODO: check if you want a default hosting policy choice already selected
                 //setOffloadingPolicy(planFound.peering_policies[0])
@@ -395,7 +399,9 @@ function DeploymentFlow(props) {
                 <ServiceSummary
                     setStep={setStep}
                     serviceName={serviceName}
+                    serviceDescription={serviceDescription}
                     planName={planName}
+                    planDescription={planDescription}
                     bindable={bindable}
                 />
             )
