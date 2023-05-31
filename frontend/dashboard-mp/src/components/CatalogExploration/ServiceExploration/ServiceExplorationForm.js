@@ -168,7 +168,7 @@ function ServiceExplorationForm(props) {
                     <Container>
                         <Row>
                             <Col>
-                                <Button className="mr-3" variant="outline-primary" href="/catalog">
+                                <Button className="mr-3" variant="outline-primary" href="/catalogs">
                                     Go Back
                                 </Button>
                             </Col>

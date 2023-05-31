@@ -87,7 +87,7 @@ function ServiceBindingInformation(props) {
                 return
             } else {
                 setBindingStarted(true)
-                setBindingStarted(true)
+                setServiceBindingCreated(true)
                 setShowModal(true)
                 // Send service instance request to marketplace
                 bindService(
@@ -123,7 +123,7 @@ function ServiceBindingInformation(props) {
             <Row>
                 <Col>
                     <h4>
-                        4/5 - Service creation
+                        4/5 - Binding
                         <DisclaimerInfo
                             disclaimerTitle={generalDisclaimerTitle}
                             disclaimerText={generalDisclaimerText}
@@ -167,7 +167,7 @@ function ServiceBindingInformation(props) {
             </Row>
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>We're establishing binding the service for you</Modal.Title>
+                    <Modal.Title>We're binding the service for you</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="d-flex align-items-center">
                     {bindingStarted ? 

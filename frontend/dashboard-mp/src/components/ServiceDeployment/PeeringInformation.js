@@ -51,24 +51,50 @@ function PeeringInformation(props) {
     const generalDisclaimerTitle = "Cluster peering"
     const generalDisclaimerText = (
         <Container>
+            <p>
+                In this step you will basically establish the communication between your cluster and the catalog's cluster.
+                <br/>
+                With this communication the catalog will be able to deploy the service on your cluster, or at least provide a secure way of
+                communication to the service.
+                <br/>
+                At the end of this operation you will notice a new namespace on your cluster, which will be used to deploy the service, or to
+                establish a secure communication with the service.
+            </p>
         </Container>
     )
 
     const copyPeerCommandDiscalimerTitle = "Copy peer command"
     const copyPeerCommandDiscalimerText = (
         <Container>
+            <p>
+                This command will generate a peer command from the liqoctl tool. Of course, we are assuming
+                that you have already installed the liqoctl tool on your machine since you installed Liqo.
+                <br/>
+                The command will be parsed by the dashboard to extract the needed data to establish the peering.
+            </p>
         </Container>
     )
 
     const chooseHostingPolicyDiscalimerTitle = "Choose hosting policy"
     const chooseHostingPolicyDiscalimerText = (
         <Container>
+            <p>
+                You have to choose the hosting policy for the service, taking one from the pool of policies offered by the specific service plan you are deploying.
+                <br/>
+                <b>Keep in mind:</b> the choice of the hosting policy will affect the <u>amount of resources</u> of where the service will be deployed. BUT anyway,
+                the service will be reachable from your cluster.
+            </p>
         </Container>
     )
 
     const chooseNamespacePrefixDiscalimerTitle = "Choose namespace prefix"
     const chooseNamespacePrefixDiscalimerText = (
         <Container>
+            <p>
+                Since the peering phase will create a new namespace on your cluster, you can choose a prefix to assign to it.
+                <b>Please note:</b> the EFFECTIVE name will be generated at the end of the process and will be composed by
+                the prefix AND a random string.
+            </p>
         </Container>
     )
 

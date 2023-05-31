@@ -27,14 +27,14 @@ function CheckConnectionModal(props) {
             case true:
                 return (
                     <p className="text-success">
-                        <CheckCircleFill /> Successfully connected to your catalog
+                        <CheckCircleFill /> Reach "readyz" endpoint: Successfully connected to your catalog
                     </p>
                 )
             case false:
                 return (
                     <>
                         <p className="text-warning">
-                            <XCircleFill /> Unable to connect to your catalog
+                            <XCircleFill /> Reach "readyz" endpoint: Unable to connect to your catalog
                         </p>
                         <Alert variant="warning">
                             <p>
@@ -50,7 +50,7 @@ function CheckConnectionModal(props) {
             default:
                 return (
                     <p>
-                        <Spinner animation="border" size="sm" /> Contacting your catalog...
+                        <Spinner animation="border" size="sm" /> Reach "readyz" endpoint: Contacting your catalog...
                     </p>
                 )
         }
@@ -61,14 +61,14 @@ function CheckConnectionModal(props) {
             case true:
                 return (
                     <p className="text-success">
-                        <CheckCircleFill /> Successfully retrieved your catalog services
+                        <CheckCircleFill /> Reach "catalog" endpoint: Successfully retrieved your catalog services
                     </p>
                 )
             case false:
                 return (
                     <>
                         <p className="text-warning">
-                            <XCircleFill /> Unable to connect to your catalog
+                            <XCircleFill /> Reach "catalog" endpoint: Unable to connect to your catalog
                         </p>
                         <Alert variant="warning">
                             <p>
@@ -84,7 +84,7 @@ function CheckConnectionModal(props) {
             default:
                 return (
                     <p>
-                        <Spinner animation="border" size="sm" /> Contacting your catalog...
+                        <Spinner animation="border" size="sm" /> Reach "catalog" endpoint: Contacting your catalog...
                     </p>
                 )
         }
@@ -104,7 +104,7 @@ function CheckConnectionModal(props) {
                                 reachabilityTestRender(reachable) :
                                 (
                                     <p>
-                                        <Spinner animation="border" size="sm" /> Waiting to start the test...
+                                        <Spinner animation="border" size="sm" /> Reach "readyz" endpoint: Waiting to start the test...
                                     </p>
                                 )                           
                             }
@@ -113,7 +113,7 @@ function CheckConnectionModal(props) {
                             { !startReachabilityTest ?
                                 (
                                     <p>
-                                        <Spinner animation="border" size="sm" /> Waiting for previous tests...
+                                        <Spinner animation="border" size="sm" /> Reach "catalog" endpoint: Waiting for previous tests...
                                     </p>
                                 )
                                 : reachable === true ?
@@ -121,19 +121,19 @@ function CheckConnectionModal(props) {
                                     reachabilityCatalogTestRender(catalogReachable) :
                                     (
                                         <p>
-                                            <Spinner animation="border" size="sm" /> Waiting to start the test...
+                                            <Spinner animation="border" size="sm" /> Reach "catalog" endpoint: Waiting to start the test...
                                         </p>
                                     )
                                 : reachable === false ?
                                     (
                                         <p className="text-danger">
-                                            <ExclamationTriangleFill /> Test aborted due to previous error
+                                            <ExclamationTriangleFill /> Reach "catalog" endpoint: Test aborted due to previous error
                                         </p>
                                     )
                                 :
                                 (
                                     <p>
-                                        <Spinner animation="border" size="sm" /> Waiting for previous tests...
+                                        <Spinner animation="border" size="sm" /> Reach "catalog" endpoint: Waiting for previous tests...
                                     </p>
                                 )
                                         

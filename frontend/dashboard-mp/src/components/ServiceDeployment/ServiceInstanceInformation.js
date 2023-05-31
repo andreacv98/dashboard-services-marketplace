@@ -210,7 +210,7 @@ function ServiceInstanceInformation(props) {
             </Row>
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>We're establishing creating the service for you</Modal.Title>
+                    <Modal.Title>We're creating the service for you</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="d-flex align-items-center">
                     {instanceStarted ? 
