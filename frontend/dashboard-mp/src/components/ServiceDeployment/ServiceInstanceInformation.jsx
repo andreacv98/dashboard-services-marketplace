@@ -6,6 +6,8 @@ import validator from '@rjsf/validator-ajv8';
 import DisclaimerInfo from "../Utils/DisclaimerInfo";
 import { useState } from "react";
 import { XCircleFill, CheckCircleFill } from "react-bootstrap-icons";
+//import CustomFieldTemplateParameter from "../Utils/CustomFieldTemplateParameter.tsx";
+
 
 function ServiceInstanceInformation(props) {
 
@@ -197,6 +199,7 @@ function ServiceInstanceInformation(props) {
                                 uiSchema={uiSchemaInstance}
                                 className="ms-3 me-3 mb-3"
                                 disabled={serviceInstanceCreated}
+                                //templates={{ FieldTemplate: CustomFieldTemplateParameter }}
                             />
                         </Card>                        
                     </Collapse>
