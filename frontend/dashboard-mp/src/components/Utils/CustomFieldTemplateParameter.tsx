@@ -1,5 +1,4 @@
-import FormControl from '@mui/material/FormControl';
-import Typography from '@mui/material/Typography';
+import { Form } from 'react-bootstrap';
 import {
   FieldTemplateProps,
   FormContextType,
@@ -15,42 +14,41 @@ import React from 'react';
  *
  * @param props - The `FieldTemplateProps` for this component
  */
+
 export default function CustomFieldTemplateParameter<
   T = any,
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = any
->(props: FieldTemplateProps<T, S, F>) {
-  const {
-    id,
-    children,
-    classNames,
-    style,
-    disabled,
-    displayLabel,
-    hidden,
-    label,
-    onDropPropertyClick,
-    onKeyChange,
-    readonly,
-    required,
-    rawErrors = [],
-    errors,
-    help,
-    description,
-    rawDescription,
-    schema,
-    uiSchema,
-    registry,
-  } = props;
-  const uiOptions = getUiOptions<T, S, F>(uiSchema);
+>({
+  id,
+  children,
+  displayLabel,
+  rawErrors = [],
+  errors,
+  help,
+  description,
+  rawDescription,
+  classNames,
+  style,
+  disabled,
+  label,
+  hidden,
+  onDropPropertyClick,
+  onKeyChange,
+  readonly,
+  required,
+  schema,
+  uiSchema,
+  registry,
+}: FieldTemplateProps<T, S, F>) {
+  const uiOptions = getUiOptions(uiSchema);
   const WrapIfAdditionalTemplate = getTemplate<'WrapIfAdditionalTemplate', T, S, F>(
     'WrapIfAdditionalTemplate',
     registry,
     uiOptions
   );
-
   if (hidden) {
-    return <div style={{ display: 'none' }}>{children}</div>;
+    return <div className='hidden'>{children}</div>;
   }
   return (
     <WrapIfAdditionalTemplate
@@ -67,16 +65,22 @@ export default function CustomFieldTemplateParameter<
       uiSchema={uiSchema}
       registry={registry}
     >
-      <FormControl fullWidth={true} error={rawErrors.length ? true : false} required={required}>
+      <Form.Group className={label.length > 0 ? 'shadow p-3 mb-2 bg-white rounded' : ''}>
+        {displayLabel && (
+          <Form.Label htmlFor={id} className={rawErrors.length > 0 ? 'text-danger' : ''}>
+            <kbd>
+              {label}
+            {required ? '*' : null}
+            </kbd>
+          </Form.Label>
+        )}
         {children}
-        {displayLabel && rawDescription ? (
-          <Typography variant='caption' color='textSecondary'>
-            {description}
-          </Typography>
-        ) : null}
+        {displayLabel && rawDescription && (
+          <Form.Text className={rawErrors.length > 0 ? 'text-danger' : 'text-muted'}>{description}</Form.Text>
+        )}
         {errors}
         {help}
-      </FormControl>
+      </Form.Group>
     </WrapIfAdditionalTemplate>
   );
 }

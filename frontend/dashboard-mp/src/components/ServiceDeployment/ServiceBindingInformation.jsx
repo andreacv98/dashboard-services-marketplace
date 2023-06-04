@@ -6,6 +6,8 @@ import validator from '@rjsf/validator-ajv8';
 import DisclaimerInfo from "../Utils/DisclaimerInfo";
 import { useEffect, useState } from "react";
 import { XCircleFill, CheckCircleFill } from "react-bootstrap-icons";
+import CustomFieldTemplateParameter from "../Utils/CustomFieldTemplateParameter.tsx";
+import CustomObjectFieldTemplateParameter from "../Utils/CustomObjectFieldTemplateParameter.tsx";
 
 function ServiceBindingInformation(props) {
 
@@ -155,6 +157,10 @@ function ServiceBindingInformation(props) {
                             uiSchema={uiSchemaBinding}
                             className="ms-3 me-3 mb-3"
                             disabled={serviceBindingCreated}
+                            templates={{
+                                FieldTemplate: CustomFieldTemplateParameter,                                
+                                ObjectFieldTemplate: CustomObjectFieldTemplateParameter,
+                            }}
                         />
                     </Card>
                 </Col>
