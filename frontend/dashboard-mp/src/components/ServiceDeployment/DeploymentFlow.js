@@ -164,202 +164,193 @@ function DeploymentFlow(props) {
     }, [idServiceProvider])
 
     useEffect(() => {
+        let interval;
+      
+        const checkPeeringStatus = async () => {
+          try {
+            const response = await checkPeering(idDeployment, auth.user?.access_token);
+            console.log("Instance status: " + response.status);
+      
+            switch (response.status) {
+              case 200:
+                const data = await response.json();
+                const namespace = data.namespace;
+                console.log("Namespace: " + namespace);
+                setNamespace(namespace);
+                setPeeringCheckPhase(false);
+                setPeeringStatus(true);
+                clearInterval(interval);
+                break;
+              case 202:
+                console.log("Peering is in progress");
+                break;
+              default:
+                console.log("Peering has failed");
+                setError("Error while peering the deployment");
+                setPeeringCheckPhase(false);
+                setPeeringStarted(false);
+                clearInterval(interval);
+                break;
+            }
+          } catch (error) {
+            setError(error.message);
+            setPeeringCheckPhase(false);
+            setPeeringStarted(false);
+            clearInterval(interval);
+          }
+
+          interval = setTimeout(checkPeeringStatus, 50)
+        };
+      
         if (peeringCheckPhase) {
-            let interval = setInterval(() => {
-                // Check peering status
-                checkPeering(
-                    idDeployment,
-                    auth.user?.access_token
-                ).then((response) => {
-                    console.log("Instance status: " + response.status)
-                    switch (response.status) {                                            
-                        case 200:
-                            // Peering is done
-                            // Get namespace from response body json
-                            response.json().then((data) => {
-                                let namespace = data.namespace;
-                                console.log("Namespace: " + namespace)
-                                setNamespace(namespace)
-                                setPeeringCheckPhase(false)
-                                setPeeringStatus(true)
-                                clearInterval(interval)
-                            })
-                            break;
-                        case 202:
-                            // Peering is in progress
-                            console.log("Peering is in progress")
-                            break;
-                        default:
-                            // Peering has failed
-                            console.log("Peering has failed")
-                            setError("Error while peering the deployment")
-                            setPeeringCheckPhase(false)
-                            setPeeringStarted(false)
-                            clearInterval(interval)
-                            break;
-                    }
-
-                }).catch((error) => {
-                    setError(error.message)
-                    setPeeringCheckPhase(false)
-                    setPeeringStarted(false)
-                    clearInterval(interval)
-                })
-            }, 1500);
+          interval = setTimeout(checkPeeringStatus, 50);
         }
-    }, [peeringCheckPhase])
+      
+        return () => {
+          clearInterval(interval);
+        };
+      }, [peeringCheckPhase]);
+      
 
     useEffect(() => {
+        let interval;
+      
+        const checkInstanceStatus = async () => {
+          try {
+            const response = await checkInstance(idDeployment, auth.user?.access_token);
+            console.log("Service instance creation status: " + response.status);
+      
+            switch (response.status) {
+              case 200:
+                const data = await response.json();
+                const state = data.state;
+      
+                if (state !== undefined) {
+                  switch (state) {
+                    case "succeeded":
+                      setInstanceCheckPhase(false);
+                      setInstanceStatus(true);
+                      clearInterval(interval);
+                      break;
+                    case "failed":
+                      setError("Error while creating the service instance");
+                      setInstanceCheckPhase(false);
+                      setInstanceStatus(false);
+                      clearInterval(interval);
+                      break;
+                    case "in progress":
+                      console.log("Service instance creation is in progress");
+                      break;
+                    default:
+                      setError("Unknown state");
+                      setInstanceCheckPhase(false);
+                      setInstanceStatus(false);
+                      clearInterval(interval);
+                      break;
+                  }
+                } else {
+                  setInstanceCheckPhase(false);
+                  setInstanceStatus(true);
+                  clearInterval(interval);
+                }
+                break;
+              default:
+                console.log("Service instance creation has failed with code: " + response.status);
+                setError("Error while creating service instance for the deployment");
+                setInstanceCheckPhase(false);
+                setInstanceStatus(true);
+                clearInterval(interval);
+                break;
+            }
+          } catch (error) {
+            setError(error.message);
+            setInstanceCheckPhase(false);
+            setInstanceStatus(true);
+            clearInterval(interval);
+          }
+
+            interval = setTimeout(checkInstanceStatus, 50)
+        };
+      
         if (instanceCheckPhase) {
-            let interval = setInterval(() => {
-                // Check peering status
-                checkInstance(
-                    idDeployment,
-                    auth.user?.access_token
-                ).then((response) => {
-                    console.log("Service instance creation status: " + response.status)
-                    switch (response.status) {                                            
-                        case 200:
-                            // Peering is done
-                            // Check state field in the JSON response
-                            response.json().then((data) => {
-                                let state = data.state;
-                                if (state !== undefined) {
-                                    switch (state) {
-                                        case "succeeded":
-                                            // Service instance created successfully
-                                            setInstanceCheckPhase(false)
-                                            setInstanceStatus(true)
-                                            clearInterval(interval)
-                                            break;
-                                        case "failed":
-                                            // Service instance creation failed
-                                            setError("Error while creating the service instance")
-                                            setInstanceCheckPhase(false)
-                                            setInstanceStatus(false)
-                                            clearInterval(interval)
-                                            break;
-                                        case "in progress":
-                                            // Service instance creation is in progress
-                                            console.log("Service instance creation is in progress")
-                                            break;
-                                        default:
-                                            // Unknown state
-                                            setError("Unknown state")
-                                            setInstanceCheckPhase(false)
-                                            setInstanceStatus(false)
-                                            clearInterval(interval)
-                                            break;
-                                    }
-                                } else {
-                                    // No operation in progress, the service instance has been already created
-                                    setInstanceCheckPhase(false)
-                                    setInstanceStatus(true)
-                                    clearInterval(interval)
-                                }
-                                
-                            }).catch((error) => {
-                                setError(error.message)
-                                setInstanceCheckPhase(false)
-                                setInstanceStatus(false)
-                                clearInterval(interval)
-                            })
-                            break;
-                        default:
-                            // Instance has failed
-                            console.log("Service instance creation has failed with code: " + response.status)
-                            setError("Error while creating service instance for the deployment")
-                            setInstanceCheckPhase(false)
-                            setInstanceStatus(true)
-                            clearInterval(interval)
-                            break;
-                    }
-
-                }).catch((error) => {
-                    setError(error.message)
-                    setInstanceCheckPhase(false)
-                    setInstanceStatus(true)
-                    clearInterval(interval)
-                })
-            }, 1500);
+          interval = setTimeout(checkInstanceStatus, 50);
         }
-    }, [instanceCheckPhase])
+      
+        return () => {
+          clearInterval(interval);
+        };
+      }, [instanceCheckPhase]);
+      
 
-    useEffect(() => {
+      useEffect(() => {
+        let interval;
+      
+        const checkBindingStatus = async () => {
+          try {
+            const response = await checkBinding(idDeployment, auth.user?.access_token);
+            console.log("Service binding creation status: " + response.status);
+      
+            switch (response.status) {
+              case 200:
+                const data = await response.json();
+                const state = data.state;
+      
+                if (state !== undefined) {
+                  switch (state) {
+                    case "succeeded":
+                      setBindingCheckPhase(false);
+                      setBindingStatus(true);
+                      clearInterval(interval);
+                      break;
+                    case "failed":
+                      setError("Error while creating the service binding");
+                      setBindingCheckPhase(false);
+                      setBindingStatus(false);
+                      clearInterval(interval);
+                      break;
+                    case "in progress":
+                      console.log("Service binding creation is in progress");
+                      break;
+                    default:
+                      setError("Unknown state");
+                      setBindingCheckPhase(false);
+                      setBindingStatus(false);
+                      clearInterval(interval);
+                      break;
+                  }
+                } else {
+                  setBindingCheckPhase(false);
+                  setBindingStatus(true);
+                  clearInterval(interval);
+                }
+                break;
+              default:
+                console.log("Service binding creation has failed with code: " + response.status);
+                setError("Error while creating service binding for the deployment");
+                setBindingCheckPhase(false);
+                setBindingStatus(true);
+                clearInterval(interval);
+                break;
+            }
+          } catch (error) {
+            setError(error.message);
+            setBindingCheckPhase(false);
+            setBindingStatus(true);
+            clearInterval(interval);
+          }
+
+            interval = setTimeout(checkBindingStatus, 50)
+        };
+      
         if (bindingCheckPhase) {
-            let interval = setInterval(() => {
-                // Check peering status
-                checkBinding(
-                    idDeployment,
-                    auth.user?.access_token
-                ).then((response) => {
-                    console.log("Service binding creation status: " + response.status)
-                    switch (response.status) {                                            
-                        case 200:
-                            // Peering is done
-                            // Check state field in the JSON response
-                            response.json().then((data) => {
-                                let state = data.state;
-                                if (state !== undefined) {
-                                    switch (state) {
-                                        case "succeeded":
-                                            // Service instance created successfully
-                                            setBindingCheckPhase(false)
-                                            setBindingStatus(true)
-                                            clearInterval(interval)
-                                            break;
-                                        case "failed":
-                                            // Service instance creation failed
-                                            setError("Error while creating the service binding")
-                                            setBindingCheckPhase(false)
-                                            setBindingStatus(false)
-                                            clearInterval(interval)
-                                            break;
-                                        case "in progress":
-                                            // Service instance creation is in progress
-                                            console.log("Service binding creation is in progress")
-                                            break;
-                                        default:
-                                            // Unknown state
-                                            setError("Unknown state")
-                                            setBindingCheckPhase(false)
-                                            setBindingStatus(false)
-                                            clearInterval(interval)
-                                            break;
-                                    }
-                                } else {
-                                    // No operation in progress, the service instance has been already created
-                                    setBindingCheckPhase(false)
-                                    setBindingStatus(true)
-                                    clearInterval(interval)
-                                }
-                                
-                            }).catch((error) => {
-                                setError(error.message)
-                                setBindingCheckPhase(false)
-                                setBindingStatus(false)
-                                clearInterval(interval)
-                            })
-                            break;
-                        default:
-                            // Binding has failed
-                            console.log("Service binding creation has failed with code: " + response.status)
-                            setError("Error while creating service binding for the deployment")
-                            setBindingCheckPhase(false)
-                            setBindingStatus(true)
-                            clearInterval(interval)
-                            break;
-                    }
-
-                }).catch((error) => {
-                    setError(error.message)
-                    setBindingCheckPhase(false)
-                    setBindingStatus(true)
-                    clearInterval(interval)
-                })
-            }, 1500);
+          interval = setTimeout(checkBindingStatus, 50);
         }
-    }, [bindingCheckPhase])
+      
+        return () => {
+          clearInterval(interval);
+        };
+      }, [bindingCheckPhase]);
+      
 
     
 

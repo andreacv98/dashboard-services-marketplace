@@ -144,9 +144,9 @@ function ServiceExplorationForm(props) {
                     <Row>
                             <Col>
                                 <p
-                                    className= {peeringPolicies.includes("Remote") ? "text-success" : "text-danger"}
+                                    className= {peeringPolicies.includes("Local") ? "text-success" : "text-danger"}
                                 >
-                                    <Cloud size={32} /> &ensp; Remotely hostable {peeringPolicies.includes("Remote") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
+                                    <Cloud size={32} /> &ensp; All remote {peeringPolicies.includes("Local") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
                                     placement='right'
                                     overlay={renderTooltip("Remotely hosted by service provider cluster")}
                                 >
@@ -157,9 +157,9 @@ function ServiceExplorationForm(props) {
                         <Row>
                             <Col>
                                 <p
-                                    className= {peeringPolicies.includes("Local") ? "text-success" : "text-danger"}
+                                    className= {peeringPolicies.includes("Remote") ? "text-success" : "text-danger"}
                                 >
-                                    <House size={32} /> &ensp; Locally hostable {peeringPolicies.includes("Local") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
+                                    <House size={32} /> &ensp; All local {peeringPolicies.includes("Remote") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
                                     placement='right'
                                     overlay={renderTooltip("Locally hosted by your cluster")}
                                 >
@@ -172,7 +172,7 @@ function ServiceExplorationForm(props) {
                                 <p
                                     className= {peeringPolicies.includes("LocalAndRemote") ? "text-success" : "text-danger"}
                                 >
-                                    <Shuffle size={32} /> &ensp; Hybridly hostable {peeringPolicies.includes("LocalAndRemote") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
+                                    <Shuffle size={32} /> &ensp; Hybrid {peeringPolicies.includes("LocalAndRemote") ? <CheckCircleFill size={20} /> : <XCircleFill size={20} />} <OverlayTrigger
                                     placement='right'
                                     overlay={renderTooltip("Hybridly hosted by your cluster and service provider cluster")}
                                 >
